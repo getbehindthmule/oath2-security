@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,11 +18,27 @@ public class CompanyController {
     @Autowired
     private CompanyService companyService;
 
-    @GetMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody List<Company> getAll() {
         LOGGER.debug("getAll called");
         return companyService.getAll();
     }
+
+    @GetMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody Company get(@RequestBody String name) {
+        LOGGER.debug("getAll called");
+        return companyService.get(name);
+    }
+
+    @PostMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
+    public Boolean create(@RequestBody Company company) {
+
+        companyService.create(company);
+
+        return true;
+
+    }
+
 
 
 }
