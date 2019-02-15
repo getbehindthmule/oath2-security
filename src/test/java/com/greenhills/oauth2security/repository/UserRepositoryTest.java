@@ -43,7 +43,7 @@ public class UserRepositoryTest {
                         "DEPARTMENT_READ",
                         "DEPARTMENT_UPDATE",
                         "DEPARTMENT_DELETE",
-                        "ROLE_COMPANY_READER"
+                        "ALL_COMPANY_READER"
                 );
 
     }
