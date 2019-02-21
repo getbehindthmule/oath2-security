@@ -12,7 +12,9 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("Duplicates")
 public class DepartmentBuilder {
+
 
     static Optional<Department> departmentFromEntity(DepartmentEntity departmentEntity ) {
         if (departmentEntity == null) return Optional.empty();
@@ -42,5 +44,34 @@ public class DepartmentBuilder {
         department.getOffices().forEach(office -> office.setDepartment(department));
 
         return Optional.of(department);
+    }
+
+    static Optional<DepartmentEntity> entityFromDepartment(Department department) {
+        if (department == null) return Optional.empty();
+
+        Set<EmployeeEntity> employeeEntities = Optional.ofNullable(department.getEmployees()).orElse(new HashSet<>())
+                .stream()
+                .map(EmployeeBuilder::entityFromEmployee)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        Set<OfficeEntity> offices = Optional.ofNullable(department.getOffices()).orElse(new HashSet<>())
+                .stream()
+                .map(OfficeBuilder::entityFromOffice)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toSet());
+
+        DepartmentEntity departmentEntity = new DepartmentEntity();
+        departmentEntity.setId(department.getId());
+        departmentEntity.setName(department.getName());
+        departmentEntity.setEmployees(employeeEntities);
+        departmentEntity.setOffices(offices);
+
+        departmentEntity.getEmployees().forEach(employee -> employee.setDepartment(departmentEntity));
+        departmentEntity.getOffices().forEach(office -> office.setDepartment(departmentEntity));
+
+        return Optional.of(departmentEntity);
     }
 }

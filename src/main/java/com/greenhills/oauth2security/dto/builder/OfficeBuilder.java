@@ -16,6 +16,15 @@ public class OfficeBuilder {
                         .address(AddressBuilder.addressFromEntity(officeEntity.getAddress()).orElse(null))
                         .build()
         );
+    }
 
+    static Optional<OfficeEntity> entityFromOffice( Office office) {
+        if (office == null) return Optional.empty();
+
+        OfficeEntity officeEntity = new OfficeEntity();
+        officeEntity.setId(office.getId());
+        officeEntity.setName(office.getName());
+        officeEntity.setAddress(AddressBuilder.entityFromAddress(office.getAddress()).orElse(null));
+        return Optional.of(officeEntity);
     }
 }

@@ -23,6 +23,17 @@ public class CarBuilderTest {
     }
 
     @Test
+    public void testWhenEntityMappingNull() {
+        // arrange
+
+        // act
+        Optional<CarEntity> actualCar = CarBuilder.entityFomCar(null);
+
+        // assert
+        assertThat(actualCar.isPresent()).isFalse();
+    }
+
+    @Test
     public void testWhenMappingIsPresent() {
         // arrange
         final Long id = 2L;
@@ -37,6 +48,26 @@ public class CarBuilderTest {
 
         // act
         Optional<Car> actualCar = CarBuilder.carFromEntity(carEntity);
+
+        // assert
+        assertThat(actualCar.get()).isEqualTo(expectedCar);
+    }
+
+    @Test
+    public void testWhenEntityMappingIsPresent() {
+        // arrange
+        final Long id = 2L;
+        final String reg = "YC 12 EOT";
+        CarEntity expectedCar = new CarEntity();
+        expectedCar.setId(2L);
+        expectedCar.setRegistrationNumber(reg);
+        Car car = Car.builder()
+                .id(id)
+                .registrationNumber(reg)
+                .build();
+
+        // act
+        Optional<CarEntity> actualCar = CarBuilder.entityFomCar(car);
 
         // assert
         assertThat(actualCar.get()).isEqualTo(expectedCar);

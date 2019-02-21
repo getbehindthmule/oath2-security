@@ -3,9 +3,8 @@ package com.greenhills.oauth2security.model.business;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.greenhills.oauth2security.model.security.User;
+import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -19,8 +18,7 @@ import java.util.Set;
 
 @Entity
 @Table(name = "COMPANY", uniqueConstraints = {@UniqueConstraint(columnNames = {"NAME"})})
-@Getter
-@Setter
+@Data
 @EqualsAndHashCode(of = "id")
 @EntityListeners(AuditingEntityListener.class)
 @JsonIgnoreProperties(

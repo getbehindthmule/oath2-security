@@ -227,6 +227,17 @@ public class CompanyBuilderTest {
     }
 
     @Test
+    public void testEntityWhenMappingNull() {
+        // arrange
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(null);
+
+        // assert
+        assertThat(actualCompany.isPresent()).isFalse();
+    }
+
+    @Test
     public void testFullMapping() {
         // arrange
         CompanyEntity companyEntity = buildDefaultCompanyEntity();
@@ -242,6 +253,25 @@ public class CompanyBuilderTest {
                 .contains(expectedCompany);
         assertThat(actualCompany.get().getDepartments())
                 .extracting(Department::getCompany)
+                .contains(expectedCompany);
+    }
+
+    @Test
+    public void testEntityFullMapping() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        Company company = buildDefaultCompany();
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCars())
+                .extracting(CarEntity::getCompany)
+                .contains(expectedCompany);
+        assertThat(actualCompany.get().getDepartments())
+                .extracting(DepartmentEntity::getCompany)
                 .contains(expectedCompany);
     }
 
@@ -268,6 +298,33 @@ public class CompanyBuilderTest {
 
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCars()).hasSize(1);
+    }
+
+    @Test
+    public void testEntityExcludesNullCarEntriesFromEntity() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        Company company = buildDefaultCompany();
+
+        Set<CarEntity> carEntities = new HashSet<CarEntity>() {{
+            add(getTestCarEntity(1L));
+        }};
+
+        Set<Car> cars = new HashSet<Car>() {{
+            add(getTestCar(1L));
+            add(null);
+        }};
+
+        expectedCompany.setCars(carEntities);
+        company.setCars(cars);
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCars()).hasSize(1);
     }
 
     @Test
@@ -293,6 +350,33 @@ public class CompanyBuilderTest {
 
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartments()).hasSize(1);
+    }
+
+    @Test
+    public void testEntityExcludesNullDeptEntriesFromEntity() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        Company company = buildDefaultCompany();
+
+        Set<DepartmentEntity> departmentEntities = new HashSet<DepartmentEntity>() {{
+            add(getTestDepartmentEntity(1L));
+        }};
+
+        Set<Department> departments = new HashSet<Department>() {{
+            add(null);
+            add(getTestDepartment(1L));
+        }};
+
+        expectedCompany.setDepartments(departmentEntities);
+        company.setDepartments(departments);
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartments()).hasSize(1);
     }
 
     @Test
@@ -311,6 +395,24 @@ public class CompanyBuilderTest {
     }
 
     @Test
+    public void testEntityNullCarsAreHandled() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        expectedCompany.setCars(Collections.EMPTY_SET);
+        Company company = buildDefaultCompany();
+        company.setCars(null);
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCars()).hasSize(0);
+    }
+
+
+
+    @Test
     public void testNullDeptsAreHandled() {
         // arrange
         CompanyEntity companyEntity = buildDefaultCompanyEntity();
@@ -323,6 +425,23 @@ public class CompanyBuilderTest {
 
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartments()).hasSize(0);
+    }
+
+    @Test
+    public void testEntityNullDeptsAreHandled() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        expectedCompany.setDepartments(Collections.EMPTY_SET);
+        Company company = buildDefaultCompany();
+        company.setDepartments(null);
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartments()).hasSize(0);
     }
 
     @Test
@@ -338,6 +457,23 @@ public class CompanyBuilderTest {
 
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCars()).hasSize(0);
+    }
+
+    @Test
+    public void testEntityEmptyCollectionsOfCarsAreHandled() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        expectedCompany.setCars(Collections.EMPTY_SET);
+        Company company = buildDefaultCompany();
+        company.setCars(Collections.EMPTY_SET);
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCars()).hasSize(0);
     }
 
     @Test
@@ -353,6 +489,23 @@ public class CompanyBuilderTest {
 
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartments()).hasSize(0);
+    }
+
+    @Test
+    public void testEntityEmptyCollectionsOfDeptsAreHandled() {
+        // arrange
+        CompanyEntity expectedCompany = buildDefaultCompanyEntity();
+        expectedCompany.setDepartments(Collections.EMPTY_SET);
+        Company company = buildDefaultCompany();
+        company.setDepartments(Collections.EMPTY_SET);
+
+        // act
+        Optional<CompanyEntity> actualCompany = CompanyBuilder.entityFromCompany(company);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartments()).hasSize(0);
     }
 
 }

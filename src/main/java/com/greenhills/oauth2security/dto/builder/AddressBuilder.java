@@ -18,4 +18,15 @@ public class AddressBuilder {
                         .build()
         );
     }
+
+    static Optional<AddressEntity> entityFromAddress(Address address) {
+        if (address == null) return Optional.empty();
+
+        AddressEntity addressEntity = new AddressEntity();
+        addressEntity.setId(address.getId());
+        addressEntity.setStreet(address.getStreet());
+        addressEntity.setHouseNumber(address.getHouseNumber());
+        addressEntity.setZipCode(address.getZipCode());
+        return Optional.of(addressEntity);
+    }
 }

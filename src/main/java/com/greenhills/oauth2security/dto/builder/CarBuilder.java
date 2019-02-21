@@ -16,4 +16,14 @@ public class CarBuilder {
                         .build()
         );
     }
+
+    static Optional<CarEntity> entityFomCar(Car car) {
+        if (car == null) return Optional.empty();
+
+        CarEntity carEntity = new CarEntity();
+        carEntity.setId(car.getId());
+        carEntity.setRegistrationNumber(car.getRegistrationNumber());
+
+        return Optional.of(carEntity);
+    }
 }

@@ -1,15 +1,13 @@
 package com.greenhills.oauth2security.model.business;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
 import javax.persistence.*;
 import java.io.Serializable;
 
 @Entity
 @Table(name = "ADDRESS")
-@Getter
-@Setter
+@Data
 public class AddressEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -24,4 +22,5 @@ public class AddressEntity implements Serializable {
 
     @Column(name = "ZIP_CODE")
     private String zipCode;
+
 }

@@ -2,8 +2,9 @@ package com.greenhills.oauth2security.model.business;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -12,8 +13,9 @@ import java.util.Set;
 
 @javax.persistence.Entity
 @Table(name = "DEPARTMENT")
-@Getter
-@Setter
+@Data
+@ToString(exclude = "company")
+@EqualsAndHashCode(exclude = "company")
 public class DepartmentEntity implements Serializable {
 
     @Id

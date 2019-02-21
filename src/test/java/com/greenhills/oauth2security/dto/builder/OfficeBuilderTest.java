@@ -49,6 +49,17 @@ public class OfficeBuilderTest {
     }
 
     @Test
+    public void testWhenEntityMappingNull() {
+        // arrange
+
+        // act
+        Optional<OfficeEntity> actualOffice = OfficeBuilder.entityFromOffice(null);
+
+        // assert
+        assertThat(actualOffice.isPresent()).isFalse();
+    }
+
+    @Test
     public void testWhenMappingIsPresent() {
         // arrange
         OfficeEntity officeEntity = new OfficeEntity();
@@ -72,6 +83,29 @@ public class OfficeBuilderTest {
     }
 
     @Test
+    public void testWhenEntityMappingIsPresent() {
+        // arrange
+        OfficeEntity expectedOffice = new OfficeEntity();
+        expectedOffice.setId(id);
+        expectedOffice.setName(name);
+        expectedOffice.setDepartment(null);
+        expectedOffice.setAddress(getTestAddressEntity());
+
+        Office office = Office.builder()
+                .id(id)
+                .name(name)
+                .department(null)
+                .address(getTestAddress())
+                .build();
+
+        // act
+        Optional<OfficeEntity> actualOffice = OfficeBuilder.entityFromOffice(office);
+
+        // assert
+        assertThat(actualOffice.get()).isEqualTo(expectedOffice);
+    }
+
+    @Test
     public void testWhenAddressIsMissing() {
         // arrange
         OfficeEntity officeEntity = new OfficeEntity();
@@ -89,6 +123,29 @@ public class OfficeBuilderTest {
 
         // act
         Optional<Office> actualOffice = OfficeBuilder.officeFromEntity(officeEntity);
+
+        // assert
+        assertThat(actualOffice.get()).isEqualTo(expectedOffice);
+    }
+
+    @Test
+    public void testWhenEntityAddressIsMissing() {
+        // arrange
+        OfficeEntity expectedOffice = new OfficeEntity();
+        expectedOffice.setId(id);
+        expectedOffice.setName(name);
+        expectedOffice.setDepartment(null);
+        expectedOffice.setAddress(null);
+
+        Office office = Office.builder()
+                .id(id)
+                .name(name)
+                .department(null)
+                .address(null)
+                .build();
+
+        // act
+        Optional<OfficeEntity> actualOffice = OfficeBuilder.entityFromOffice(office);
 
         // assert
         assertThat(actualOffice.get()).isEqualTo(expectedOffice);

@@ -35,13 +35,11 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @PreAuthorize("hasAuthority('ALL_COMPANY_READER')")
     public List<Company> getAll() {
-        List<Company> companies = StreamSupport.stream(companyRepository.findAll().spliterator(), false)
+        return StreamSupport.stream(companyRepository.findAll().spliterator(), false)
                 .map(CompanyBuilder::companyFromEntity)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(toList());
-
-        return Arrays.asList(Company.builder().id(1L).name("green hills").build());
     }
 
     @Override

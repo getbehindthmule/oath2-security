@@ -1,5 +1,6 @@
 package com.greenhills.oauth2security.dto;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -14,5 +15,6 @@ public class Employee {
     private String name;
     private String surname;
     private Address address;
+    @JsonBackReference
     private Department department;
 }

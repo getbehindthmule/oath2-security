@@ -160,6 +160,17 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testWhenEntityMappingNull() {
+        // arrange
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(null);
+
+        // assert
+        assertThat(actualDepartment.isPresent()).isFalse();
+    }
+
+    @Test
     public void testFullMapping() {
         // arrange
         final Department expectedDepartment = buildDefaultTestDepartment();
@@ -179,6 +190,25 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testFullEntityMapping() {
+        // arrange
+        final DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(buildDefaultTestDepartment());
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployees())
+                .extracting(EmployeeEntity::getDepartment)
+                .contains(expectedDepartment);
+
+        assertThat(actualDepartment.get().getOffices())
+                .extracting(OfficeEntity::getDepartment)
+                .contains(expectedDepartment);
+    }
+
+    @Test
     public void testNullOfficesAreHandled() {
         // arrange
         Department expectedDepartment = buildDefaultTestDepartment();
@@ -188,6 +218,23 @@ public class DepartmentBuilderTest {
 
         // act
         Optional<Department> actualDepartment = DepartmentBuilder.departmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getOffices()).hasSize(0);
+
+    }
+
+    @Test
+    public void testEntityNullOfficesAreHandled() {
+        // arrange
+        Department dept = buildDefaultTestDepartment();
+        dept.setOffices(null);
+        DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+        expectedDepartment.setOffices(Collections.EMPTY_SET);
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(dept);
 
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
@@ -213,6 +260,23 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testEntityNullEmployeesAreHandled() {
+        // arrange
+        Department dept = buildDefaultTestDepartment();
+        dept.setEmployees(null);
+        DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+        expectedDepartment.setEmployees(Collections.EMPTY_SET);
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(dept);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployees()).hasSize(0);
+
+    }
+
+    @Test
     public void testEmptyCollectionOfOfficesAreHandled() {
         // arrange
         Department expectedDepartment = buildDefaultTestDepartment();
@@ -230,6 +294,23 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testEntityEmptyCollectionOfOfficesAreHandled() {
+        // arrange
+        Department dept = buildDefaultTestDepartment();
+        dept.setOffices(Collections.EMPTY_SET);
+        DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+        expectedDepartment.setOffices(Collections.EMPTY_SET);
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(dept);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getOffices()).hasSize(0);
+
+    }
+
+    @Test
     public void testEmptyCollectionOfEmployeesAreHandled() {
         // arrange
         Department expectedDepartment = buildDefaultTestDepartment();
@@ -239,6 +320,23 @@ public class DepartmentBuilderTest {
 
         // act
         Optional<Department> actualDepartment = DepartmentBuilder.departmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployees()).hasSize(0);
+
+    }
+
+    @Test
+    public void testEntityEmptyCollectionOfEmployeesAreHandled() {
+        // arrange
+        Department dept = buildDefaultTestDepartment();
+        dept.setEmployees(Collections.EMPTY_SET);
+        DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+        expectedDepartment.setEmployees(Collections.EMPTY_SET);
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(dept);
 
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
@@ -274,6 +372,33 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testEntityExcludesNullOfficeIsExcluded() {
+        // arrange
+        final OfficeEntity officeEntity = new OfficeEntity();
+        officeEntity.setId(99L);
+        final Office office = Office.builder().id(99L).build();
+        Set<OfficeEntity> officeEntities = new HashSet<OfficeEntity>() {{
+            add(officeEntity);
+        }};
+        Set<Office> offices = new HashSet<Office>() {{
+            add(office);
+            add(null);
+        }};
+        Department dept = buildDefaultTestDepartment();
+        dept.setOffices(offices);
+        DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+        expectedDepartment.setOffices(officeEntities);
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(dept);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getOffices()).hasSize(1);
+
+    }
+
+    @Test
     public void testExcludesNullEmployeeIsExcluded() {
         // arrange
         final EmployeeEntity employeeEntity = new EmployeeEntity();
@@ -293,6 +418,33 @@ public class DepartmentBuilderTest {
 
         // act
         Optional<Department> actualDepartment = DepartmentBuilder.departmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployees()).hasSize(1);
+
+    }
+
+    @Test
+    public void testEntityExcludesNullEmployeeIsExcluded() {
+        // arrange
+        final EmployeeEntity employeeEntity = new EmployeeEntity();
+        employeeEntity.setId(99L);
+        final Employee employee = Employee.builder().id(99L).build();
+        Set<EmployeeEntity> employeeEntities = new HashSet<EmployeeEntity>() {{
+            add(employeeEntity);
+        }};
+        Set<Employee> employees = new HashSet<Employee>() {{
+            add(null);
+            add(employee);
+        }};
+        Department dept = buildDefaultTestDepartment();
+        dept.setEmployees(employees);
+        DepartmentEntity expectedDepartment = buildDefaultTestDepartmentEntity();
+        expectedDepartment.setEmployees(employeeEntities);
+
+        // act
+        Optional<DepartmentEntity> actualDepartment = DepartmentBuilder.entityFromDepartment(dept);
 
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);

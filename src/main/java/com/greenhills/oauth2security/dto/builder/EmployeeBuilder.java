@@ -18,4 +18,16 @@ public class EmployeeBuilder {
                         .build()
         );
     }
+
+    static Optional<EmployeeEntity> entityFromEmployee(Employee employee) {
+        if (employee == null) return Optional.empty();
+
+        EmployeeEntity employeeEntity = new EmployeeEntity();
+        employeeEntity.setId(employee.getId());
+        employeeEntity.setName(employee.getName());
+        employeeEntity.setSurname(employee.getSurname());
+        employeeEntity.setAddress(AddressBuilder.entityFromAddress(employee.getAddress()).orElse(null));
+
+        return Optional.of(employeeEntity);
+    }
 }

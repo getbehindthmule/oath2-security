@@ -50,6 +50,17 @@ public class EmployeeBuilderTest {
     }
 
     @Test
+    public void testWhenEntityMappingNull() {
+        // arrange
+
+        // act
+        Optional<EmployeeEntity> actualEmployee = EmployeeBuilder.entityFromEmployee(null);
+
+        // assert
+        assertThat(actualEmployee.isPresent()).isFalse();
+    }
+
+    @Test
     public void testWhenMappingIsPresent() {
         // arrange
         EmployeeEntity employeeEntity = new EmployeeEntity();
@@ -75,6 +86,31 @@ public class EmployeeBuilderTest {
     }
 
     @Test
+    public void testWhenEntityMappingIsPresent() {
+        // arrange
+        EmployeeEntity expectedEmployee = new EmployeeEntity();
+        expectedEmployee.setId(id);
+        expectedEmployee.setAddress(getTestAddressEntity());
+        expectedEmployee.setDepartment(null);
+        expectedEmployee.setName(name);
+        expectedEmployee.setSurname(surname);
+
+        Employee employee = Employee.builder()
+                .id(id)
+                .address(getTestAddress())
+                .department(null)
+                .name(name)
+                .surname(surname)
+                .build();
+
+        // act
+        Optional<EmployeeEntity> actualEmployee = EmployeeBuilder.entityFromEmployee(employee);
+
+        // assert
+        assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);
+    }
+
+    @Test
     public void testWhenAddressIsMissing() {
         EmployeeEntity employeeEntity = new EmployeeEntity();
         employeeEntity.setId(id);
@@ -93,6 +129,30 @@ public class EmployeeBuilderTest {
 
         // act
         Optional<Employee> actualEmployee = EmployeeBuilder.employeeFromEntity(employeeEntity);
+
+        // assert
+        assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);
+    }
+
+    @Test
+    public void testWhenEntityAddressIsMissing() {
+        EmployeeEntity expectedEmployee = new EmployeeEntity();
+        expectedEmployee.setId(id);
+        expectedEmployee.setAddress(null);
+        expectedEmployee.setDepartment(null);
+        expectedEmployee.setName(name);
+        expectedEmployee.setSurname(surname);
+
+        Employee employee = Employee.builder()
+                .id(id)
+                .address(null)
+                .department(null)
+                .name(name)
+                .surname(surname)
+                .build();
+
+        // act
+        Optional<EmployeeEntity> actualEmployee = EmployeeBuilder.entityFromEmployee(employee);
 
         // assert
         assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);
