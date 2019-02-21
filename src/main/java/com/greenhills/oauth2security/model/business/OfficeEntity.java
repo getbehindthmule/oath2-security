@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Table(name = "OFFICE")
 @Getter
 @Setter
-public class Office implements Serializable {
+public class OfficeEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,9 +23,9 @@ public class Office implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "ADDRESS_ID")
-    private Address address;
+    private AddressEntity address;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    private Department department;
+    private DepartmentEntity department;
 }

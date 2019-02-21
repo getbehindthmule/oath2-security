@@ -10,11 +10,11 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@javax.persistence.Entity
 @Table(name = "DEPARTMENT")
 @Getter
 @Setter
-public class Department implements Serializable {
+public class DepartmentEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,14 +26,14 @@ public class Department implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "department", fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
-    private Set<Employee> employees = new HashSet<>();
+    private Set<EmployeeEntity> employees = new HashSet<>();
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "department", fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
-    private Set<Office> offices = new HashSet<>();
+    private Set<OfficeEntity> offices = new HashSet<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    private Company company;
+    private CompanyEntity company;
 
 }

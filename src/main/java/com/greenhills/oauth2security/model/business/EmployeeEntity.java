@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Table(name = "EMPLOYEE")
 @Getter
 @Setter
-public class Employee implements Serializable {
+public class EmployeeEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -26,9 +26,9 @@ public class Employee implements Serializable {
 
     @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "ADDRESS_ID")
-    private Address address;
+    private AddressEntity address;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    private Department department;
+    private DepartmentEntity department;
 }

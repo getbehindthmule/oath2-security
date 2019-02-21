@@ -11,7 +11,7 @@ import java.io.Serializable;
 @Table(name = "CAR")
 @Getter
 @Setter
-public class Car implements Serializable {
+public class CarEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,5 +23,5 @@ public class Car implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JsonBackReference
-    private Company company;
+    private CompanyEntity company;
 }
