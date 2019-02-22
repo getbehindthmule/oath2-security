@@ -11,9 +11,9 @@ public interface CompanyService {
 
     List<Company> getAll();
 
-    void create(Company company);
+    Long create(Company company);
 
-    Company update(Company company);
+    Long update(Company company);
 
     void delete(Long id);
 

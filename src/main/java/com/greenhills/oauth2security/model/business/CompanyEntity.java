@@ -2,11 +2,11 @@ package com.greenhills.oauth2security.model.business;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.greenhills.oauth2security.model.security.User;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -43,9 +43,12 @@ public class CompanyEntity implements Serializable {
     private Set<CarEntity> cars = new HashSet<>();
 
     @CreatedBy
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
+    @Column(name = "CREATED_BY", nullable = false)
+    private String createdBy;
+
+    @LastModifiedBy
+    @Column(name = "MODIFIED_BY", nullable = false)
+    private String modifiedBy;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "CREATED_AT", nullable = false, updatable = false)

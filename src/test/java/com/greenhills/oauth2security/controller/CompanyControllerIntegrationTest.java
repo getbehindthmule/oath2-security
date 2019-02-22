@@ -2,7 +2,9 @@ package com.greenhills.oauth2security.controller;
 
 
 import com.greenhills.oauth2security.Application;
+import com.greenhills.oauth2security.model.business.CompanyEntity;
 import org.json.JSONObject;
+import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +16,16 @@ import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.PersistenceUnit;
+import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Base64;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -26,6 +35,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @SpringBootTest(classes = Application.class)
 public class CompanyControllerIntegrationTest {
+
+    @PersistenceUnit()
+    private EntityManagerFactory entityManagerFactory;
+    private EntityManager entityManager;
 
     final String readWriteClientName = "spring-security-oauth2-read-write-client";
     final String readWriteClientPassword = "spring-security-oauth2-read-write-client-password1234";
@@ -195,6 +208,18 @@ public class CompanyControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
+    @After
+    public void tearDown() {
+        entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 3", CompanyEntity.class).getResultList();
+
+        resultSet.forEach(entityManager::remove);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
+
+
     @Test
     public void testInitialisation() {
         assertThat(true).isTrue();
@@ -326,7 +351,6 @@ public class CompanyControllerIntegrationTest {
         // arrange
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
         final String company = "{\n" +
-                "  \"id\" : 1,\n" +
                 "  \"name\": \"green hills\",\n" +
                 "  \"department\" : null,\n" +
                 "  \"cars\" : null\n" +
@@ -344,7 +368,7 @@ public class CompanyControllerIntegrationTest {
                 .andReturn();
 
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
-        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase("true");
+        assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(3L);
 
     }
 
@@ -414,4 +438,143 @@ public class CompanyControllerIntegrationTest {
         assertThat(jsonResponse.getString("error_description")).isEqualTo("Access is denied");
 
     }
+
+    @Test
+    public void testGetCompanyWhenFound() throws Exception {
+        // arrange
+        final String expectedResponse = "{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.mockMvc.perform(
+                get("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                .content("Coca Cola")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(expectedResponse);
+    }
+
+    @Test
+    public void testGetCompanyWhenNotFound() throws Exception {
+        // arrange
+        final String expectedResponse = "";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.mockMvc.perform(
+                get("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content("missing")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    public void testCreateCompanyWhenNew() throws Exception {
+        // arrange
+        final String company = "{\"id\":null,\"name\":\"Green Hills\",\"departments\":[{\"id\":null,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.mockMvc.perform(
+                post("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(company)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(3L);
+        mvcResult = this.mockMvc.perform(
+                get("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content("Green Hills")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        assertThat(mvcResult.getResponse().getContentAsString()).isNotEmpty();
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("\"name\":\"Green Hills\"");
+    }
+
+    @Test
+    public void testCreateCompanyWhenIdUndefined() throws Exception {
+        // arrange
+        final String company = "{\"name\":\"Green Hills\",\"departments\":[{\"id\":null,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.mockMvc.perform(
+                post("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(company)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(3L);
+        mvcResult = this.mockMvc.perform(
+                get("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content("Green Hills")
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+        assertThat(mvcResult.getResponse().getContentAsString()).isNotEmpty();
+        assertThat(mvcResult.getResponse().getContentAsString()).contains("\"name\":\"Green Hills\"");
+    }
+
+    @Test
+    public void testCreateCompanyDefinesAssociatedUser() throws Exception {
+        // arrange
+        final String company = "{\"name\":\"Green Hills\",\"departments\":[{\"id\":null,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.mockMvc.perform(
+                post("/secured/company")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(company)
+        )
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // assert
+        entityManager = entityManagerFactory.createEntityManager();
+        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 3", CompanyEntity.class).getResultList();
+
+        Timestamp now = Timestamp.valueOf(LocalDate.now().atStartOfDay());
+        assertThat(resultSet).hasSize(1)
+                .extracting("createdBy", "modifiedBy", "createdAt", "updatedAt")
+                .containsExactly(tuple("admin", "admin", now, now));
+        entityManager.close();
+    }
+
+
 }

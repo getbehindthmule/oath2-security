@@ -45,7 +45,7 @@ public class CompanyBuilder {
 
     }
 
-    static Optional<CompanyEntity> entityFromCompany(Company company) {
+    public static Optional<CompanyEntity> entityFromCompany(Company company) {
         if (company == null) return Optional.empty();
 
         Set<CarEntity> carEntities = Optional.ofNullable(company.getCars()).orElse(new HashSet<>())

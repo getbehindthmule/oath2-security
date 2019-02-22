@@ -26,17 +26,15 @@ public class CompanyController {
 
     @GetMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody Company get(@RequestBody String name) {
-        LOGGER.debug("getAll called");
+        LOGGER.debug("get called");
         return companyService.get(name);
     }
 
     @PostMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Boolean create(@RequestBody Company company) {
+    public Long create(@RequestBody Company company) {
+        LOGGER.debug("create called");
 
-        companyService.create(company);
-
-        return true;
-
+        return companyService.create(company);
     }
 
 
