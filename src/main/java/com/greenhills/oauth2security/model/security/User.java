@@ -1,6 +1,8 @@
 package com.greenhills.oauth2security.model.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.greenhills.oauth2security.dto.Company;
+import com.greenhills.oauth2security.model.business.CompanyEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +47,12 @@ public class User implements UserDetails, Serializable {
     @OrderBy
     @JsonIgnore
     private Collection<Authority> authorities;
+
+    @ManyToMany
+    @JoinTable(name = "APP_USERS_COMPANIES",joinColumns = @JoinColumn(name = "USER_ID", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "COMPANY_ID", referencedColumnName = "ID"))
+    @OrderBy
+    @JsonIgnore
+    private Collection<CompanyEntity> companiesAccess;
 
     @Override
     public boolean isAccountNonExpired() {

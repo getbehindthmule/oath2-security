@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -24,6 +27,8 @@ import java.util.Set;
 @JsonIgnoreProperties(
         value = {"user", "createdAt", "updatedAt"},
         allowGetters = true)
+@FilterDef(name = "authorize", parameters = {@ParamDef(name = "userId", type = "long")})
+@Filter(name = "authorize", condition = " ID in (select uc.COMPANY_ID from USER_ u join APP_USERS_COMPANIES uc on uc.User_Id=u.id where u.id=:userId)")
 public class CompanyEntity implements Serializable {
 
     @Id

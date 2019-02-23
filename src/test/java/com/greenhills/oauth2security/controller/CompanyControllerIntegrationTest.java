@@ -15,10 +15,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceUnit;
+import javax.persistence.Query;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Base64;
@@ -50,159 +53,6 @@ public class CompanyControllerIntegrationTest {
     final String readerUserName = "reader";
     final String readerUserPassword = "reader1234";
 
-    /*
-    following json expectedResult is equivalent to,
-    [
-      {
-        "id": 1,
-        "name": "Pepsi",
-        "departments": [
-          {
-            "id": 3,
-            "name": "Administration",
-            "employees": [
-              {
-                "id": 3,
-                "name": "Donald",
-                "surname": "Tyler",
-                "address": {
-                  "id": 3,
-                  "street": "Street Z",
-                  "houseNumber": "3",
-                  "zipCode": "12-343"
-                }
-              }
-            ],
-            "offices": [
-              {
-                "id": 4,
-                "name": "OfficeEntity of A Los Angeles",
-                "address": {
-                  "id": 7,
-                  "street": "Street XXX",
-                  "houseNumber": "7",
-                  "zipCode": "12-347"
-                }
-              }
-            ]
-          },
-          {
-            "id": 2,
-            "name": "Research & Development",
-            "employees": [
-              {
-                "id": 2,
-                "name": "Robert",
-                "surname": "James",
-                "address": {
-                  "id": 2,
-                  "street": "Street Y",
-                  "houseNumber": "2",
-                  "zipCode": "12-342"
-                }
-              }
-            ],
-            "offices": [
-              {
-                "id": 3,
-                "name": "OfficeEntity of R&D Boston",
-                "address": {
-                  "id": 6,
-                  "street": "Street ZZ",
-                  "houseNumber": "6",
-                  "zipCode": "12-346"
-                }
-              }
-            ]
-          },
-          {
-            "id": 1,
-            "name": "Sales & Marketing",
-            "employees": [
-              {
-                "id": 1,
-                "name": "John",
-                "surname": "William",
-                "address": {
-                  "id": 1,
-                  "street": "Street X",
-                  "houseNumber": "1",
-                  "zipCode": "12-341"
-                }
-              }
-            ],
-            "offices": [
-              {
-                "id": 1,
-                "name": "OfficeEntity of S&M Boston",
-                "address": {
-                  "id": 4,
-                  "street": "Street XX",
-                  "houseNumber": "4",
-                  "zipCode": "12-344"
-                }
-              },
-              {
-                "id": 2,
-                "name": "OfficeEntity of S&M New York",
-                "address": {
-                  "id": 5,
-                  "street": "Street YY",
-                  "houseNumber": "5",
-                  "zipCode": "12-345"
-                }
-              }
-            ]
-          }
-        ],
-        "cars": [
-          {
-            "id": 1,
-            "registrationNumber": "XYZ10ABC"
-          },
-          {
-            "id": 3,
-            "registrationNumber": "XYZ12ABC"
-          },
-          {
-            "id": 2,
-            "registrationNumber": "XYZ11ABC"
-          }
-        ]
-      },
-      {
-        "id": 2,
-        "name": "Coca Cola",
-        "departments": [
-          {
-            "id": 4,
-            "name": "Human Resources",
-            "employees": [],
-            "offices": []
-          }
-        ],
-        "cars": [
-          {
-            "id": 4,
-            "registrationNumber": "XYZ13ABC"
-          }
-        ]
-      },
-      {
-        "id": 3,
-        "name": "Sprite",
-        "departments": [
-          {
-            "id": 5,
-            "name": "Sales & Marketing",
-            "employees": [],
-            "offices": []
-          }
-        ],
-        "cars": []
-      }
-    ]
-     */
 
     final String findAllCompaniesResponse = "[{\"id\":1,\"name\":\"Pepsi\",\"departments\":[{\"id\":3,\"name\":\"Administration\",\"employees\":[{\"id\":3,\"name\":\"Donald\",\"surname\":\"Tyler\",\"address\":{\"id\":3,\"street\":\"Street Z\",\"houseNumber\":\"3\",\"zipCode\":\"12-343\"}}],\"offices\":[{\"id\":4,\"name\":\"OfficeEntity of A Los Angeles\",\"address\":{\"id\":7,\"street\":\"Street XXX\",\"houseNumber\":\"7\",\"zipCode\":\"12-347\"}}]},{\"id\":2,\"name\":\"Research & Development\",\"employees\":[{\"id\":2,\"name\":\"Robert\",\"surname\":\"James\",\"address\":{\"id\":2,\"street\":\"Street Y\",\"houseNumber\":\"2\",\"zipCode\":\"12-342\"}}],\"offices\":[{\"id\":3,\"name\":\"OfficeEntity of R&D Boston\",\"address\":{\"id\":6,\"street\":\"Street ZZ\",\"houseNumber\":\"6\",\"zipCode\":\"12-346\"}}]},{\"id\":1,\"name\":\"Sales & Marketing\",\"employees\":[{\"id\":1,\"name\":\"John\",\"surname\":\"William\",\"address\":{\"id\":1,\"street\":\"Street X\",\"houseNumber\":\"1\",\"zipCode\":\"12-341\"}}],\"offices\":[{\"id\":1,\"name\":\"OfficeEntity of S&M Boston\",\"address\":{\"id\":4,\"street\":\"Street XX\",\"houseNumber\":\"4\",\"zipCode\":\"12-344\"}},{\"id\":2,\"name\":\"OfficeEntity of S&M New York\",\"address\":{\"id\":5,\"street\":\"Street YY\",\"houseNumber\":\"5\",\"zipCode\":\"12-345\"}}]}],\"cars\":[{\"id\":1,\"registrationNumber\":\"XYZ10ABC\"},{\"id\":3,\"registrationNumber\":\"XYZ12ABC\"},{\"id\":2,\"registrationNumber\":\"XYZ11ABC\"}]},{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]},{\"id\":3,\"name\":\"Sprite\",\"departments\":[{\"id\":5,\"name\":\"Sales & Marketing\",\"employees\":[],\"offices\":[]}],\"cars\":[]}]";
     @Autowired
@@ -217,6 +67,17 @@ public class CompanyControllerIntegrationTest {
         resultSet.forEach(entityManager::remove);
         entityManager.getTransaction().commit();
         entityManager.close();
+    }
+
+    private Boolean findCompany(String name) {
+        entityManager = entityManagerFactory.createEntityManager();
+        Query query = entityManager.createQuery("FROM CompanyEntity WHERE name = :name", CompanyEntity.class);
+        query.setParameter("name", name);
+        List<CompanyEntity> resultSet = query.getResultList();
+
+        entityManager.close();
+
+        return resultSet.size() == 1;
     }
 
 
@@ -276,14 +137,8 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                get("/secured/all")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = executeRestCall(token, get("/secured/all"), status().isOk());
+
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -297,14 +152,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readClientName, readClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                get("/secured/all")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = executeRestCall(token, get("/secured/all"), status().isOk());
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -316,13 +164,7 @@ public class CompanyControllerIntegrationTest {
         // arrange
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                get("/secured/all")
-                        .contentType(MediaType.APPLICATION_JSON)
-        )
-                .andDo(print())
-                .andExpect(status().is4xxClientError())
-                .andReturn();
+        MvcResult mvcResult = executeRestCall("", get("/secured/all"), status().is4xxClientError());
 
         // assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(401);
@@ -333,14 +175,8 @@ public class CompanyControllerIntegrationTest {
         // arrange
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                get("/secured/all")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer wibble")
-        )
-                .andDo(print())
-                .andExpect(status().is4xxClientError())
-                .andReturn();
+        MvcResult mvcResult = executeRestCall("wibble", get("/secured/all"), status().is4xxClientError());
+
 
         // assert
         assertThat(mvcResult.getResponse().getStatus()).isEqualTo(401);
@@ -357,15 +193,8 @@ public class CompanyControllerIntegrationTest {
                 "}";
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                post("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(company)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
+
 
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
         assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(3L);
@@ -384,15 +213,7 @@ public class CompanyControllerIntegrationTest {
                 "}";
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                post("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(company)
-        )
-                .andDo(print())
-                .andExpect(status().is4xxClientError())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().is4xxClientError(), company);
 
         // assert
         JSONObject jsonResponse = new JSONObject(mvcResult.getResponse().getContentAsString());
@@ -418,15 +239,7 @@ public class CompanyControllerIntegrationTest {
                 "}";
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                post("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(company)
-        )
-                .andDo(print())
-                .andExpect(status().is4xxClientError())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().is4xxClientError(), company);
 
         // assert
         JSONObject jsonResponse = new JSONObject(mvcResult.getResponse().getContentAsString());
@@ -446,15 +259,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                get("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                .content("Coca Cola")
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/company"), status().isOk(), "Coca Cola");
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -468,15 +273,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                get("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("missing")
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/company"), status().isOk(), "missing");
 
         // assert
         assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(expectedResponse);
@@ -489,30 +286,13 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                post("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(company)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
         assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(3L);
-        mvcResult = this.mockMvc.perform(
-                get("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("Green Hills")
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
-        assertThat(mvcResult.getResponse().getContentAsString()).isNotEmpty();
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("\"name\":\"Green Hills\"");
+        assertThat(this.findCompany("Green Hills")).isTrue();
+
     }
 
     @Test
@@ -522,30 +302,12 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                post("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(company)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
         assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(3L);
-        mvcResult = this.mockMvc.perform(
-                get("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content("Green Hills")
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
-        assertThat(mvcResult.getResponse().getContentAsString()).isNotEmpty();
-        assertThat(mvcResult.getResponse().getContentAsString()).contains("\"name\":\"Green Hills\"");
+        assertThat(this.findCompany("Green Hills")).isTrue();
     }
 
     @Test
@@ -555,15 +317,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.mockMvc.perform(
-                post("/secured/company")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(company)
-        )
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andReturn();
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
 
         // assert
         entityManager = entityManagerFactory.createEntityManager();
@@ -576,5 +330,68 @@ public class CompanyControllerIntegrationTest {
         entityManager.close();
     }
 
+    @Test
+    public void testCompanyFilterAccess_AdminHasAll() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+        final String cocalCola = "Coca Cola";
+        final String pepsi = "Pepsi";
+        final String sprite = "Sprite";
+
+        // act
+        MvcResult cocaColaResponse = executeRestCall(token, get("/secured/company"), status().isOk(), cocalCola);
+        MvcResult pepsiResponse = executeRestCall(token, get("/secured/company"), status().isOk(), pepsi);
+        MvcResult spriteResponse = executeRestCall(token, get("/secured/company"), status().isOk(), sprite);
+
+        // assert
+        assertThat(cocaColaResponse.getResponse().getContentAsString()).contains(cocalCola);
+        assertThat(pepsiResponse.getResponse().getContentAsString()).contains(pepsi);
+        assertThat(spriteResponse.getResponse().getContentAsString()).contains(sprite);
+    }
+
+    @Test
+    public void testCompanyFilterAccess_ReaderHasLimitedAccess() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, readerUserName, readerUserPassword);
+        final String cocalCola = "Coca Cola";
+        final String pepsi = "Pepsi";
+        final String sprite = "Sprite";
+
+        // act
+        MvcResult cocaColaResponse = executeRestCall(token, get("/secured/company"), status().isOk(), cocalCola);
+        MvcResult pepsiResponse = executeRestCall(token, get("/secured/company"), status().isOk(), pepsi);
+        MvcResult spriteResponse = executeRestCall(token, get("/secured/company"), status().isOk(), sprite);
+
+        // assert
+        assertThat(cocaColaResponse.getResponse().getContentAsString()).contains(cocalCola);
+        assertThat(pepsiResponse.getResponse().getContentAsString()).contains(pepsi);
+        assertThat(spriteResponse.getResponse().getContentAsString()).doesNotContain(sprite);
+    }
+
+
+    private MvcResult executeRestCall(String token, MockHttpServletRequestBuilder builder, ResultMatcher matcher) throws Exception {
+        return this.mockMvc.perform(
+                builder
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+        )
+                .andDo(print())
+                .andExpect(matcher)
+                .andReturn();
+    }
+
+
+    private MvcResult executeRestCall(String token, MockHttpServletRequestBuilder builder, ResultMatcher matcher, String content) throws Exception {
+        return this.mockMvc.perform(
+                builder
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(content)
+        )
+                .andDo(print())
+                .andExpect(matcher)
+                .andReturn();
+    }
 
 }
+
