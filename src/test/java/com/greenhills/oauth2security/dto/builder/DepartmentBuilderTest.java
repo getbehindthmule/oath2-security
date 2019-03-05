@@ -1,13 +1,7 @@
 package com.greenhills.oauth2security.dto.builder;
 
-import com.greenhills.oauth2security.dto.Address;
-import com.greenhills.oauth2security.dto.Department;
-import com.greenhills.oauth2security.dto.Employee;
-import com.greenhills.oauth2security.dto.Office;
-import com.greenhills.oauth2security.model.business.AddressEntity;
-import com.greenhills.oauth2security.model.business.DepartmentEntity;
-import com.greenhills.oauth2security.model.business.EmployeeEntity;
-import com.greenhills.oauth2security.model.business.OfficeEntity;
+import com.greenhills.oauth2security.dto.*;
+import com.greenhills.oauth2security.model.business.*;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -16,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,6 +53,13 @@ public class DepartmentBuilderTest {
         officeEntity.setAddress(getTestAddressEntity(id));
 
         return officeEntity;
+    }
+
+    private static CompanyEntity getTestCompanyEntity(Long id) {
+        final CompanyEntity companyEntity = new CompanyEntity();
+        companyEntity.setId(id);
+
+        return companyEntity;
     }
 
     private static Office getTestOffice(Long id) {
@@ -114,6 +116,7 @@ public class DepartmentBuilderTest {
         departmentEntity.setName(departmentName);
         departmentEntity.setOffices(officeEntities);
         departmentEntity.setEmployees(employeeEntities);
+        departmentEntity.setCompany(getTestCompanyEntity(1L));
 
         return departmentEntity;
     }
@@ -148,12 +151,43 @@ public class DepartmentBuilderTest {
         return department;
     }
 
+    private LightweightDepartment buildDefaultLightweightTestDepartment(){
+        LightweightDepartment department = LightweightDepartment.builder().build().builder()
+                .id(1L)
+                .name(departmentName)
+                .companyId(1L)
+                .build();
+
+        Set<Long> offices = Stream.of(1L, 2L)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        Set<Long> employees = Stream.of(1L, 2L)
+                .collect(Collectors.toCollection(HashSet::new));
+
+
+        department.setEmployeeIds(employees);
+        department.setOfficeIds(offices);
+
+        return department;
+    }
+
     @Test
     public void testWhenMappingNull() {
         // arrange
 
         // act
         Optional<Department> actualDepartment = DepartmentBuilder.departmentFromEntity(null);
+
+        // assert
+        assertThat(actualDepartment.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testLightweightWhenMappingNull() {
+        // arrange
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(null);
 
         // assert
         assertThat(actualDepartment.isPresent()).isFalse();
@@ -187,6 +221,18 @@ public class DepartmentBuilderTest {
         assertThat(actualDepartment.get().getOffices())
                 .extracting(Office::getDepartment)
                 .contains(expectedDepartment);
+    }
+
+    @Test
+    public void testLightWeightFullMapping() {
+        // arrange
+        final LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(buildDefaultTestDepartmentEntity());
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
     }
 
     @Test
@@ -226,6 +272,23 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testLightweightNullOfficesAreHandled() {
+        // arrange
+        LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+        expectedDepartment.setOfficeIds(Collections.EMPTY_SET);
+        DepartmentEntity departmentEntity = buildDefaultTestDepartmentEntity();
+        departmentEntity.setOffices(null);
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getOfficeIds()).hasSize(0);
+
+    }
+
+    @Test
     public void testEntityNullOfficesAreHandled() {
         // arrange
         Department dept = buildDefaultTestDepartment();
@@ -256,6 +319,23 @@ public class DepartmentBuilderTest {
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
         assertThat(actualDepartment.get().getEmployees()).hasSize(0);
+
+    }
+
+    @Test
+    public void testLightweightNullEmployeesAreHandled() {
+        // arrange
+        LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+        expectedDepartment.setEmployeeIds(Collections.EMPTY_SET);
+        DepartmentEntity departmentEntity = buildDefaultTestDepartmentEntity();
+        departmentEntity.setEmployees(null);
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployeeIds()).hasSize(0);
 
     }
 
@@ -294,6 +374,23 @@ public class DepartmentBuilderTest {
     }
 
     @Test
+    public void testEmptyCollectionOfLightweightOfficesAreHandled() {
+        // arrange
+        LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+        expectedDepartment.setOfficeIds(Collections.EMPTY_SET);
+        DepartmentEntity departmentEntity = buildDefaultTestDepartmentEntity();
+        departmentEntity.setOffices(Collections.EMPTY_SET);
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getOfficeIds()).hasSize(0);
+
+    }
+
+    @Test
     public void testEntityEmptyCollectionOfOfficesAreHandled() {
         // arrange
         Department dept = buildDefaultTestDepartment();
@@ -324,6 +421,23 @@ public class DepartmentBuilderTest {
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
         assertThat(actualDepartment.get().getEmployees()).hasSize(0);
+
+    }
+
+    @Test
+    public void testEmptyCollectionOfLightweightEmployeesAreHandled() {
+        // arrange
+        LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+        expectedDepartment.setEmployeeIds(Collections.EMPTY_SET);
+        DepartmentEntity departmentEntity = buildDefaultTestDepartmentEntity();
+        departmentEntity.setEmployees(Collections.EMPTY_SET);
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployeeIds()).hasSize(0);
 
     }
 
@@ -368,6 +482,31 @@ public class DepartmentBuilderTest {
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
         assertThat(actualDepartment.get().getOffices()).hasSize(1);
+
+    }
+
+    @Test
+    public void testExcludesNullOfficeIsExcludedForLightweight() {
+        // arrange
+        final OfficeEntity officeEntity = new OfficeEntity();
+        officeEntity.setId(99L);
+        Set<OfficeEntity> officeEntities = new HashSet<OfficeEntity>() {{
+            add(null);
+            add(officeEntity);
+        }};
+        Set<Long> offices = Stream.of(99L).collect(Collectors.toCollection(HashSet::new));
+
+        LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+        expectedDepartment.setOfficeIds(offices);
+        DepartmentEntity departmentEntity = buildDefaultTestDepartmentEntity();
+        departmentEntity.setOffices(officeEntities);
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getOfficeIds()).hasSize(1);
 
     }
 
@@ -422,6 +561,31 @@ public class DepartmentBuilderTest {
         // assert
         assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
         assertThat(actualDepartment.get().getEmployees()).hasSize(1);
+
+    }
+
+    @Test
+    public void testExcludesNullEmployeeIsExcludedForLightweight() {
+        // arrange
+        final EmployeeEntity employeeEntity = new EmployeeEntity();
+        employeeEntity.setId(99L);
+
+        Set<EmployeeEntity> employeeEntities = new HashSet<EmployeeEntity>() {{
+            add(null);
+            add(employeeEntity);
+        }};
+        Set<Long> employees = Stream.of(99L).collect(Collectors.toCollection(HashSet::new));
+        LightweightDepartment expectedDepartment = buildDefaultLightweightTestDepartment();
+        expectedDepartment.setEmployeeIds(employees);
+        DepartmentEntity departmentEntity = buildDefaultTestDepartmentEntity();
+        departmentEntity.setEmployees(employeeEntities);
+
+        // act
+        Optional<LightweightDepartment> actualDepartment = DepartmentBuilder.lightweightDepartmentFromEntity(departmentEntity);
+
+        // assert
+        assertThat(actualDepartment.get()).isEqualTo(expectedDepartment);
+        assertThat(actualDepartment.get().getEmployeeIds()).hasSize(1);
 
     }
 

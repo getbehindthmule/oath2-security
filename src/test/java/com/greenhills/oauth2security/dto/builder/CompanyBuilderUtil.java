@@ -3,8 +3,11 @@ package com.greenhills.oauth2security.dto.builder;
 import com.greenhills.oauth2security.dto.*;
 import com.greenhills.oauth2security.model.business.*;
 
+import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 
@@ -204,6 +207,24 @@ public class CompanyBuilderUtil {
 
         company.setCars(cars);
         company.setDepartments(departments);
+
+        return company;
+    }
+
+    static public LightweightCompany buildDefaultLightweightCompany() {
+        LightweightCompany company = LightweightCompany.builder()
+                .id(1L)
+                .name(companyName)
+                .build();
+
+        Set<Long> cars = Stream.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, 10L)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        Set<Long> departments = Stream.of(1L, 2L, 3L, 4L, 5L)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        company.setCarIds(cars);
+        company.setDepartmentIds(departments);
 
         return company;
     }

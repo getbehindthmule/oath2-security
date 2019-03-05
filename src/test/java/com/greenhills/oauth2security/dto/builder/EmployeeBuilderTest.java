@@ -2,6 +2,7 @@ package com.greenhills.oauth2security.dto.builder;
 
 import com.greenhills.oauth2security.dto.Address;
 import com.greenhills.oauth2security.dto.Employee;
+import com.greenhills.oauth2security.dto.LightweightEmployee;
 import com.greenhills.oauth2security.model.business.AddressEntity;
 import com.greenhills.oauth2security.model.business.DepartmentEntity;
 import com.greenhills.oauth2security.model.business.EmployeeEntity;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EmployeeBuilderTest {
     final Long id = 2L;
+    final Long deptId = 3L;
     final String street = "Taits Lane";
     final String houseNumber = "35";
     final String zipCode = "DD6 9BW";
@@ -50,6 +52,17 @@ public class EmployeeBuilderTest {
     }
 
     @Test
+    public void testLightweightWhenMappingNull() {
+        // arrange
+
+        // act
+        Optional<LightweightEmployee> actualEmployee = EmployeeBuilder.lightweightEmployeeFromEntity(null);
+
+        // assert
+        assertThat(actualEmployee.isPresent()).isFalse();
+    }
+
+    @Test
     public void testWhenEntityMappingNull() {
         // arrange
 
@@ -80,6 +93,34 @@ public class EmployeeBuilderTest {
 
         // act
         Optional<Employee> actualEmployee = EmployeeBuilder.employeeFromEntity(employeeEntity);
+
+        // assert
+        assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);
+    }
+
+    @Test
+    public void testLightweightWhenMappingIsPresent() {
+        // arrange
+        DepartmentEntity departmentEntity = new DepartmentEntity();
+        departmentEntity.setId(deptId);
+        EmployeeEntity employeeEntity = new EmployeeEntity();
+        employeeEntity.setId(id);
+        employeeEntity.setAddress(getTestAddressEntity());
+        employeeEntity.setDepartment(new DepartmentEntity());
+        employeeEntity.setName(name);
+        employeeEntity.setSurname(surname);
+        employeeEntity.setDepartment(departmentEntity);
+
+        LightweightEmployee expectedEmployee = LightweightEmployee.builder()
+                .id(id)
+                .address(getTestAddress())
+                .departmentId(deptId)
+                .name(name)
+                .surname(surname)
+                .build();
+
+        // act
+        Optional<LightweightEmployee> actualEmployee = EmployeeBuilder.lightweightEmployeeFromEntity(employeeEntity);
 
         // assert
         assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);
@@ -129,6 +170,33 @@ public class EmployeeBuilderTest {
 
         // act
         Optional<Employee> actualEmployee = EmployeeBuilder.employeeFromEntity(employeeEntity);
+
+        // assert
+        assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);
+    }
+
+    @Test
+    public void testLightweightWhenAddressIsMissing() {
+        DepartmentEntity departmentEntity = new DepartmentEntity();
+        departmentEntity.setId(deptId);
+        EmployeeEntity employeeEntity = new EmployeeEntity();
+        employeeEntity.setId(id);
+        employeeEntity.setAddress(null);
+        employeeEntity.setDepartment(new DepartmentEntity());
+        employeeEntity.setName(name);
+        employeeEntity.setSurname(surname);
+        employeeEntity.setDepartment(departmentEntity);
+
+        LightweightEmployee expectedEmployee = LightweightEmployee.builder()
+                .id(id)
+                .address(null)
+                .departmentId(deptId)
+                .name(name)
+                .surname(surname)
+                .build();
+
+        // act
+        Optional<LightweightEmployee> actualEmployee = EmployeeBuilder.lightweightEmployeeFromEntity(employeeEntity);
 
         // assert
         assertThat(actualEmployee.get()).isEqualTo(expectedEmployee);

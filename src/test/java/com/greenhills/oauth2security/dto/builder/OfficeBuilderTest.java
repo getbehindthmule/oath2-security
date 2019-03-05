@@ -1,6 +1,7 @@
 package com.greenhills.oauth2security.dto.builder;
 
 import com.greenhills.oauth2security.dto.Address;
+import com.greenhills.oauth2security.dto.LightweightOffice;
 import com.greenhills.oauth2security.dto.Office;
 import com.greenhills.oauth2security.model.business.AddressEntity;
 import com.greenhills.oauth2security.model.business.DepartmentEntity;
@@ -13,6 +14,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class OfficeBuilderTest {
     final Long id = 2L;
+    final Long deptId = 3L;
     final String street = "Taits Lane";
     final String houseNumber = "35";
     final String zipCode = "DD6 9BW";
@@ -49,6 +51,17 @@ public class OfficeBuilderTest {
     }
 
     @Test
+    public void testLightweightWhenMappingNull() {
+        // arrange
+
+        // act
+        Optional<LightweightOffice> actualOffice = OfficeBuilder.lightweightOfficeFromEntity(null);
+
+        // assert
+        assertThat(actualOffice.isPresent()).isFalse();
+    }
+
+    @Test
     public void testWhenEntityMappingNull() {
         // arrange
 
@@ -77,6 +90,32 @@ public class OfficeBuilderTest {
 
         // act
         Optional<Office> actualOffice = OfficeBuilder.officeFromEntity(officeEntity);
+
+        // assert
+        assertThat(actualOffice.get()).isEqualTo(expectedOffice);
+    }
+
+    @Test
+    public void testLightweightWhenMappingIsPresent() {
+        // arrange
+        DepartmentEntity departmentEntity = new DepartmentEntity();
+        departmentEntity.setId(deptId);
+        OfficeEntity officeEntity = new OfficeEntity();
+        officeEntity.setId(id);
+        officeEntity.setName(name);
+        officeEntity.setDepartment(new DepartmentEntity());
+        officeEntity.setAddress(getTestAddressEntity());
+        officeEntity.setDepartment(departmentEntity);
+
+        LightweightOffice expectedOffice = LightweightOffice.builder()
+                .id(id)
+                .name(name)
+                .departmentId(deptId)
+                .address(getTestAddress())
+                .build();
+
+        // act
+        Optional<LightweightOffice> actualOffice = OfficeBuilder.lightweightOfficeFromEntity(officeEntity);
 
         // assert
         assertThat(actualOffice.get()).isEqualTo(expectedOffice);
@@ -123,6 +162,31 @@ public class OfficeBuilderTest {
 
         // act
         Optional<Office> actualOffice = OfficeBuilder.officeFromEntity(officeEntity);
+
+        // assert
+        assertThat(actualOffice.get()).isEqualTo(expectedOffice);
+    }
+
+    @Test
+    public void testLightweightWhenAddressIsMissing() {
+        // arrange
+        DepartmentEntity departmentEntity = new DepartmentEntity();
+        departmentEntity.setId(deptId);
+        OfficeEntity officeEntity = new OfficeEntity();
+        officeEntity.setId(id);
+        officeEntity.setName(name);
+        officeEntity.setDepartment(departmentEntity);
+        officeEntity.setAddress(null);
+
+        LightweightOffice expectedOffice = LightweightOffice.builder()
+                .id(id)
+                .name(name)
+                .departmentId(deptId)
+                .address(null)
+                .build();
+
+        // act
+        Optional<LightweightOffice> actualOffice = OfficeBuilder.lightweightOfficeFromEntity(officeEntity);
 
         // assert
         assertThat(actualOffice.get()).isEqualTo(expectedOffice);

@@ -2,7 +2,9 @@ package com.greenhills.oauth2security.dto.builder;
 
 
 import com.greenhills.oauth2security.dto.Car;
+import com.greenhills.oauth2security.dto.LightweightCar;
 import com.greenhills.oauth2security.model.business.CarEntity;
+import com.greenhills.oauth2security.model.business.CompanyEntity;
 import org.junit.Test;
 
 import java.util.Optional;
@@ -17,6 +19,17 @@ public class CarBuilderTest {
 
         // act
         Optional<Car> actualCar = CarBuilder.carFromEntity(null);
+
+        // assert
+        assertThat(actualCar.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testLightweightWhenMappingNull() {
+        // arrange
+
+        // act
+        Optional<LightweightCar> actualCar = CarBuilder.lightweightCarFromEntity(null);
 
         // assert
         assertThat(actualCar.isPresent()).isFalse();
@@ -53,6 +66,29 @@ public class CarBuilderTest {
         assertThat(actualCar.get()).isEqualTo(expectedCar);
     }
 
+    @Test
+    public void testLightweightWhenMappingIsPresent() {
+        // arrange
+        final Long id = 2L;
+        final String reg = "YC 12 EOT";
+        CompanyEntity companyEntity = new CompanyEntity();
+        companyEntity.setId(1L);
+        CarEntity carEntity = new CarEntity();
+        carEntity.setId(2L);
+        carEntity.setRegistrationNumber(reg);
+        carEntity.setCompany(companyEntity);
+        LightweightCar expectedCar = LightweightCar.builder()
+                .id(id)
+                .registrationNumber(reg)
+                .companyId(1L)
+                .build();
+
+        // act
+        Optional<LightweightCar> actualCar = CarBuilder.lightweightCarFromEntity(carEntity);
+
+        // assert
+        assertThat(actualCar.get()).isEqualTo(expectedCar);
+    }
     @Test
     public void testWhenEntityMappingIsPresent() {
         // arrange

@@ -1,8 +1,13 @@
 package com.greenhills.oauth2security.dto.builder;
 
 
-import com.greenhills.oauth2security.dto.*;
-import com.greenhills.oauth2security.model.business.*;
+import com.greenhills.oauth2security.dto.Car;
+import com.greenhills.oauth2security.dto.Company;
+import com.greenhills.oauth2security.dto.Department;
+import com.greenhills.oauth2security.dto.LightweightCompany;
+import com.greenhills.oauth2security.model.business.CarEntity;
+import com.greenhills.oauth2security.model.business.CompanyEntity;
+import com.greenhills.oauth2security.model.business.DepartmentEntity;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -22,6 +27,17 @@ public class CompanyBuilderTest  {
 
         // act
         Optional<Company> actualCompany = CompanyBuilder.companyFromEntity(null);
+
+        // assert
+        assertThat(actualCompany.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testLightweightWhenMappingNull() {
+        // arrange
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(null);
 
         // assert
         assertThat(actualCompany.isPresent()).isFalse();
@@ -55,6 +71,19 @@ public class CompanyBuilderTest  {
         assertThat(actualCompany.get().getDepartments())
                 .extracting(Department::getCompany)
                 .contains(expectedCompany);
+    }
+
+    @Test
+    public void testFullLightweightMapping() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
     }
 
     @Test
@@ -100,6 +129,30 @@ public class CompanyBuilderTest  {
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
         assertThat(actualCompany.get().getCars()).hasSize(1);
+    }
+
+    @Test
+    public void testLightweightExcludesNullCarEntriesFromEntity() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+
+        Set<CarEntity> carEntities = new HashSet<CarEntity>() {{
+            add(CompanyBuilderUtil.getTestCarEntity(1L));
+            add(null);
+        }};
+
+        Set<Long> cars = Collections.singleton(1L);
+
+        companyEntity.setCars(carEntities);
+        expectedCompany.setCarIds(cars);
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCarIds()).hasSize(1).contains(1L);
     }
 
     @Test
@@ -155,6 +208,31 @@ public class CompanyBuilderTest  {
     }
 
     @Test
+    public void testLightweightExcludesNullDeptEntriesFromEntity() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+
+        Set<DepartmentEntity> departmentEntities = new HashSet<DepartmentEntity>() {{
+            add(CompanyBuilderUtil.getTestDepartmentEntity(1L));
+            add(null);
+        }};
+
+        Set<Long> departments = Collections.singleton(1L);
+
+        companyEntity.setDepartments(departmentEntities);
+        expectedCompany.setDepartmentIds(departments);
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartmentIds()).hasSize(1).contains(1L);
+    }
+
+
+    @Test
     public void testEntityExcludesNullDeptEntriesFromEntity() {
         // arrange
         CompanyEntity expectedCompany = CompanyBuilderUtil.buildDefaultCompanyEntity();
@@ -196,6 +274,21 @@ public class CompanyBuilderTest  {
     }
 
     @Test
+    public void testNullCarsAreHandled_ForLightweight() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        companyEntity.setCars(null);
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+        expectedCompany.setCarIds(Collections.EMPTY_SET);
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+    }
+
+    @Test
     public void testEntityNullCarsAreHandled() {
         // arrange
         CompanyEntity expectedCompany = CompanyBuilderUtil.buildDefaultCompanyEntity();
@@ -227,6 +320,22 @@ public class CompanyBuilderTest  {
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
         assertThat(actualCompany.get().getDepartments()).hasSize(0);
+    }
+
+    @Test
+    public void testNullDeptsAreHandled_ForLightweight() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        companyEntity.setDepartments(null);
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+        expectedCompany.setDepartmentIds(Collections.EMPTY_SET);
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartmentIds()).hasSize(0);
     }
 
     @Test
@@ -262,6 +371,22 @@ public class CompanyBuilderTest  {
     }
 
     @Test
+    public void testEmptyCollectionsOfCarsAreHandledForLightweights() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        companyEntity.setCars(Collections.EMPTY_SET);
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+        expectedCompany.setCarIds(Collections.EMPTY_SET);
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getCarIds()).hasSize(0);
+    }
+
+    @Test
     public void testEntityEmptyCollectionsOfCarsAreHandled() {
         // arrange
         CompanyEntity expectedCompany = CompanyBuilderUtil.buildDefaultCompanyEntity();
@@ -291,6 +416,22 @@ public class CompanyBuilderTest  {
         // assert
         assertThat(actualCompany.get()).isEqualTo(expectedCompany);
         assertThat(actualCompany.get().getDepartments()).hasSize(0);
+    }
+
+    @Test
+    public void testEmptyCollectionsOfDeptsAreHandledForLightweight() {
+        // arrange
+        CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
+        companyEntity.setDepartments(Collections.EMPTY_SET);
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+        expectedCompany.setDepartmentIds(Collections.EMPTY_SET);
+
+        // act
+        Optional<LightweightCompany> actualCompany = CompanyBuilder.lightweightCompanyFromEntity(companyEntity);
+
+        // assert
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany);
+        assertThat(actualCompany.get().getDepartmentIds()).hasSize(0);
     }
 
     @Test

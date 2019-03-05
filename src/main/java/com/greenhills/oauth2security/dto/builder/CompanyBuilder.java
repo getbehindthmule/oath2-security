@@ -3,11 +3,13 @@ package com.greenhills.oauth2security.dto.builder;
 import com.greenhills.oauth2security.dto.Car;
 import com.greenhills.oauth2security.dto.Company;
 import com.greenhills.oauth2security.dto.Department;
+import com.greenhills.oauth2security.dto.LightweightCompany;
 import com.greenhills.oauth2security.model.business.CarEntity;
 import com.greenhills.oauth2security.model.business.CompanyEntity;
 import com.greenhills.oauth2security.model.business.DepartmentEntity;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -40,6 +42,32 @@ public class CompanyBuilder {
 
         company.getCars().forEach( car -> car.setCompany(company));
         company.getDepartments().forEach(dept -> dept.setCompany(company));
+
+        return Optional.of(company);
+
+    }
+
+    public static Optional<LightweightCompany> lightweightCompanyFromEntity(CompanyEntity companyEntity) {
+        if (companyEntity == null) return Optional.empty();
+
+        Set<Long> cars = Optional.ofNullable(companyEntity.getCars()).orElse(new HashSet<>())
+                .stream()
+                .filter(Objects::nonNull)
+                .map(CarEntity::getId)
+                .collect(Collectors.toSet());
+
+        Set<Long> departments = Optional.ofNullable(companyEntity.getDepartments()).orElse(new HashSet<>())
+                .stream()
+                .filter(Objects::nonNull)
+                .map(DepartmentEntity::getId)
+                .collect(Collectors.toSet());
+
+        LightweightCompany company = LightweightCompany.builder()
+                .id(companyEntity.getId())
+                .name(companyEntity.getName())
+                .carIds(cars)
+                .departmentIds(departments)
+                .build();
 
         return Optional.of(company);
 

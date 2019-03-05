@@ -1,6 +1,7 @@
 package com.greenhills.oauth2security.dto.builder;
 
 import com.greenhills.oauth2security.dto.Car;
+import com.greenhills.oauth2security.dto.LightweightCar;
 import com.greenhills.oauth2security.model.business.CarEntity;
 
 import java.util.Optional;
@@ -25,5 +26,17 @@ public class CarBuilder {
         carEntity.setRegistrationNumber(car.getRegistrationNumber());
 
         return Optional.of(carEntity);
+    }
+
+    static Optional<LightweightCar> lightweightCarFromEntity(CarEntity carEntity) {
+        if (carEntity == null) return Optional.empty();
+
+        return Optional.of(
+                LightweightCar.builder()
+                        .id(carEntity.getId())
+                        .registrationNumber(carEntity.getRegistrationNumber())
+                        .companyId(carEntity.getCompany().getId())
+                        .build()
+        );
     }
 }

@@ -1,6 +1,7 @@
 package com.greenhills.oauth2security.dto.builder;
 
 import com.greenhills.oauth2security.dto.Employee;
+import com.greenhills.oauth2security.dto.LightweightEmployee;
 import com.greenhills.oauth2security.model.business.EmployeeEntity;
 
 import java.util.Optional;
@@ -15,6 +16,20 @@ public class EmployeeBuilder {
                         .name(employeeEntity.getName())
                         .surname(employeeEntity.getSurname())
                         .address(AddressBuilder.addressFromEntity(employeeEntity.getAddress()).orElse(null))
+                        .build()
+        );
+    }
+
+    static Optional<LightweightEmployee> lightweightEmployeeFromEntity(EmployeeEntity employeeEntity) {
+        if (employeeEntity == null) return Optional.empty();
+
+        return Optional.of(
+                LightweightEmployee.builder()
+                        .id(employeeEntity.getId())
+                        .name(employeeEntity.getName())
+                        .surname(employeeEntity.getSurname())
+                        .address(AddressBuilder.addressFromEntity(employeeEntity.getAddress()).orElse(null))
+                        .departmentId(employeeEntity.getDepartment().getId())
                         .build()
         );
     }

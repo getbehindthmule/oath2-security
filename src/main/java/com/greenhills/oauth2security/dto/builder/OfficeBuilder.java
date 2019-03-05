@@ -1,5 +1,6 @@
 package com.greenhills.oauth2security.dto.builder;
 
+import com.greenhills.oauth2security.dto.LightweightOffice;
 import com.greenhills.oauth2security.dto.Office;
 import com.greenhills.oauth2security.model.business.OfficeEntity;
 
@@ -14,6 +15,19 @@ public class OfficeBuilder {
                         .id(officeEntity.getId())
                         .name(officeEntity.getName())
                         .address(AddressBuilder.addressFromEntity(officeEntity.getAddress()).orElse(null))
+                        .build()
+        );
+    }
+
+    static Optional<LightweightOffice> lightweightOfficeFromEntity(OfficeEntity officeEntity){
+        if (officeEntity == null) return Optional.empty();
+
+        return Optional.of(
+                LightweightOffice.builder()
+                        .id(officeEntity.getId())
+                        .name(officeEntity.getName())
+                        .address(AddressBuilder.addressFromEntity(officeEntity.getAddress()).orElse(null))
+                        .departmentId(officeEntity.getDepartment().getId())
                         .build()
         );
     }
