@@ -229,4 +229,23 @@ public class CompanyBuilderUtil {
         return company;
     }
 
+    static public LightweightDepartment buildDefaultLightweightDepartment() {
+        LightweightDepartment department = LightweightDepartment.builder()
+                .id(1L)
+                .name(departmentName)
+                .companyId(1L)
+                .build();
+
+
+        Set<Long> employees = Stream.of(1L, 2L)
+                .collect(Collectors.toCollection(HashSet::new));
+        Set<Long> offices = Stream.of(1L, 2L)
+                .collect(Collectors.toCollection(HashSet::new));
+
+        department.setEmployeeIds(employees);
+        department.setOfficeIds(offices);
+
+        return department;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.greenhills.oauth2security.service;
 
 import com.greenhills.oauth2security.dto.Company;
+import com.greenhills.oauth2security.dto.LightweightCompany;
 import com.greenhills.oauth2security.dto.builder.CompanyBuilderUtil;
 import com.greenhills.oauth2security.model.business.CompanyEntity;
 import com.greenhills.oauth2security.repository.CompanyRepository;
@@ -65,6 +66,18 @@ public class CompanyServiceImplTest {
     }
 
     @Test
+    public void testGetLightweightWhenNull() {
+        // arrange
+        when(companyRepository.findByName(anyString())).thenReturn(null);
+
+        // act
+        Company company = sut.get("company");
+
+        // assert
+        assertThat(company).isNull();
+    }
+
+    @Test
     public void testGetWhenValueFound() {
         // arrange
         Company expectedCompany = CompanyBuilderUtil.buildDefaultCompany();
@@ -72,6 +85,19 @@ public class CompanyServiceImplTest {
 
         // act
         Company company = sut.get("company");
+
+        // assert
+        assertThat(company).isEqualTo(expectedCompany);
+    }
+
+    @Test
+    public void testGetLightweightWhenValueFound() {
+        // arrange
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+        when(companyRepository.findByName(anyString())).thenReturn(CompanyBuilderUtil.buildDefaultCompanyEntity());
+
+        // act
+        LightweightCompany company = sut.getLightweight("company");
 
         // assert
         assertThat(company).isEqualTo(expectedCompany);

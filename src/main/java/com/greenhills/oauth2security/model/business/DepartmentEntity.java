@@ -5,6 +5,9 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
+import org.hibernate.annotations.Filter;
+import org.hibernate.annotations.FilterDef;
+import org.hibernate.annotations.ParamDef;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,6 +19,11 @@ import java.util.Set;
 @Data
 @ToString(exclude = "company")
 @EqualsAndHashCode(exclude = "company")
+@FilterDef(name = "authorizeDepartment", parameters = {@ParamDef(name = "userId", type = "long")})
+@Filter(name = "authorizeDepartment", condition = " ID in " +
+        "(" +
+            "select d.ID from USER_ u, DEPARTMENT d join APP_USERS_COMPANIES uc on uc.USER_ID = u.ID and d.COMPANY_ID = uc.COMPANY_ID where u.ID = :userId" +
+        ")")
 public class DepartmentEntity implements Serializable {
 
     @Id

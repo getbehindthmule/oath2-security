@@ -27,6 +27,9 @@ public class SecureAspect {
         getCurrentUserId().ifPresent(id -> {
             Filter filter = entityManager.unwrap(Session.class).enableFilter("authorize");
             filter.setParameter("userId", id);
+
+            Filter departmentFilter = entityManager.unwrap(Session.class).enableFilter("authorizeDepartment");
+            departmentFilter.setParameter("userId", id);
         });
 
     }
@@ -34,6 +37,7 @@ public class SecureAspect {
     private void removeAuthorizeFilter(){
         getCurrentUserId().ifPresent(id -> {
             entityManager.unwrap(Session.class).disableFilter("authorize");
+            entityManager.unwrap(Session.class).disableFilter("authorizeDepartment");
         });
 
     }

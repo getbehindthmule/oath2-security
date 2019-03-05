@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class DepartmentBuilder {
 
 
-    static Optional<Department> departmentFromEntity(DepartmentEntity departmentEntity ) {
+    public static Optional<Department> departmentFromEntity(DepartmentEntity departmentEntity ) {
         if (departmentEntity == null) return Optional.empty();
 
         Set<Employee> employees = Optional.ofNullable(departmentEntity.getEmployees()).orElse(new HashSet<>())
@@ -48,7 +48,7 @@ public class DepartmentBuilder {
         return Optional.of(department);
     }
 
-    static Optional<LightweightDepartment> lightweightDepartmentFromEntity(DepartmentEntity departmentEntity ) {
+    public static Optional<LightweightDepartment> lightweightDepartmentFromEntity(DepartmentEntity departmentEntity ) {
         if (departmentEntity == null) return Optional.empty();
 
         Set<Long> employees = Optional.ofNullable(departmentEntity.getEmployees()).orElse(new HashSet<>())
@@ -75,7 +75,7 @@ public class DepartmentBuilder {
         return Optional.of(department);
     }
 
-    static Optional<DepartmentEntity> entityFromDepartment(Department department) {
+    public static Optional<DepartmentEntity> entityFromDepartment(Department department) {
         if (department == null) return Optional.empty();
 
         Set<EmployeeEntity> employeeEntities = Optional.ofNullable(department.getEmployees()).orElse(new HashSet<>())

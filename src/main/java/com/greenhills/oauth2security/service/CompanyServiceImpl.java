@@ -2,6 +2,7 @@ package com.greenhills.oauth2security.service;
 
 import com.greenhills.oauth2security.annotations.SecureRead;
 import com.greenhills.oauth2security.dto.Company;
+import com.greenhills.oauth2security.dto.LightweightCompany;
 import com.greenhills.oauth2security.dto.builder.CompanyBuilder;
 import com.greenhills.oauth2security.model.business.CompanyEntity;
 import com.greenhills.oauth2security.repository.CompanyRepository;
@@ -22,12 +23,12 @@ public class CompanyServiceImpl implements CompanyService {
     CompanyRepository companyRepository;
 
 
-
-
-
+    @SecureRead
     @Override
+    @PreAuthorize("hasAuthority('COMPANY_READ')")
+    @Transactional
     public Company get(Long id) {
-        return null;
+        return CompanyBuilder.companyFromEntity(companyRepository.findById(id).orElse(null)).orElse(null);
     }
 
     @SecureRead
@@ -37,6 +38,14 @@ public class CompanyServiceImpl implements CompanyService {
     public Company get(String name) {
         Company company = CompanyBuilder.companyFromEntity(companyRepository.findByName(name)).orElse(null);
         return company;
+    }
+
+    @SecureRead
+    @Override
+    @PreAuthorize("hasAuthority('COMPANY_READ')")
+    @Transactional
+    public LightweightCompany getLightweight(String name) {
+        return CompanyBuilder.lightweightCompanyFromEntity(companyRepository.findByName(name)).orElse(null);
     }
 
     @Override

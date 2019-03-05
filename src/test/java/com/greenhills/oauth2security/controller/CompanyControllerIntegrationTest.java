@@ -58,15 +58,28 @@ public class CompanyControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @After
-    public void tearDown() {
-        entityManager = entityManagerFactory.createEntityManager();
-        entityManager.getTransaction().begin();
-        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 3", CompanyEntity.class).getResultList();
+    private MvcResult executeRestCall(String token, MockHttpServletRequestBuilder builder, ResultMatcher matcher) throws Exception {
+        return this.mockMvc.perform(
+                builder
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+        )
+                .andDo(print())
+                .andExpect(matcher)
+                .andReturn();
+    }
 
-        resultSet.forEach(entityManager::remove);
-        entityManager.getTransaction().commit();
-        entityManager.close();
+
+    private MvcResult executeRestCall(String token, MockHttpServletRequestBuilder builder, ResultMatcher matcher, String content) throws Exception {
+        return this.mockMvc.perform(
+                builder
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                        .content(content)
+        )
+                .andDo(print())
+                .andExpect(matcher)
+                .andReturn();
     }
 
     private Boolean findCompany(String name) {
@@ -80,6 +93,17 @@ public class CompanyControllerIntegrationTest {
         return resultSet.size() == 1;
     }
 
+
+    @After
+    public void tearDown() {
+        entityManager = entityManagerFactory.createEntityManager();
+        entityManager.getTransaction().begin();
+        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 3", CompanyEntity.class).getResultList();
+
+        resultSet.forEach(entityManager::remove);
+        entityManager.getTransaction().commit();
+        entityManager.close();
+    }
 
     @Test
     public void testInitialisation() {
@@ -267,6 +291,20 @@ public class CompanyControllerIntegrationTest {
     }
 
     @Test
+    public void testGetLightweightCompanyWhenFound() throws Exception {
+        // arrange
+        final String expectedResponse = "{\"id\":1,\"name\":\"Pepsi\",\"departmentIds\":[1,2,3],\"carIds\":[1,2,3]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/lightweight/company"), status().isOk(), "Pepsi");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(expectedResponse);
+    }
+
+    @Test
     public void testGetCompanyWhenNotFound() throws Exception {
         // arrange
         final String expectedResponse = "";
@@ -274,6 +312,19 @@ public class CompanyControllerIntegrationTest {
 
         // act
         MvcResult mvcResult = this.executeRestCall(token, get("/secured/company"), status().isOk(), "missing");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(expectedResponse);
+    }
+
+    @Test
+    public void testGetLightweightCompanyWhenNotFound() throws Exception {
+        // arrange
+        final String expectedResponse = "";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/lightweight/company"), status().isOk(), "missing");
 
         // assert
         assertThat(mvcResult.getResponse().getContentAsString()).isEqualTo(expectedResponse);
@@ -368,29 +419,70 @@ public class CompanyControllerIntegrationTest {
         assertThat(spriteResponse.getResponse().getContentAsString()).doesNotContain(sprite);
     }
 
+    @Test
+    public void testGetDepartmentWhenFound() throws Exception {
+        // arrange
+        final String expectedDepartmentName = "Sales & Marketing";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
-    private MvcResult executeRestCall(String token, MockHttpServletRequestBuilder builder, ResultMatcher matcher) throws Exception {
-        return this.mockMvc.perform(
-                builder
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-        )
-                .andDo(print())
-                .andExpect(matcher)
-                .andReturn();
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/department"), status().isOk(), "1");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedDepartmentName);
     }
 
+    @Test
+    public void testGetDepartmentFilterAccess_ReaderHasFullAccess() throws Exception {
+        // arrange
+        final String expectedDepartmentName = "Sales & Marketing";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
-    private MvcResult executeRestCall(String token, MockHttpServletRequestBuilder builder, ResultMatcher matcher, String content) throws Exception {
-        return this.mockMvc.perform(
-                builder
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                        .content(content)
-        )
-                .andDo(print())
-                .andExpect(matcher)
-                .andReturn();
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/department"), status().isOk(), "5");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedDepartmentName);
+    }
+
+    @Test
+    public void testGetDepartmentFilterAccess_ReaderHasLimitedAccess() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, readerUserName, readerUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/department"), status().isOk(), "5");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentAsString()).isEmpty();
+    }
+
+    @Test
+    public void testGetLightweightDepartmentFilterAccess_ReaderHasFullAccess() throws Exception {
+        // arrange
+        final String expectedDepartmentName = "Sales & Marketing";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/lightweight/department"), status().isOk(), "5");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedDepartmentName);
+    }
+
+    @Test
+    public void testGetLightweightDepartmentFilterAccess_ReaderHasLimitedAccess() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, readerUserName, readerUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/lightweight/department"), status().isOk(), "5");
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentAsString()).isEmpty();
     }
 
 }

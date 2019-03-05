@@ -1,7 +1,11 @@
 package com.greenhills.oauth2security.controller;
 
 import com.greenhills.oauth2security.dto.Company;
+import com.greenhills.oauth2security.dto.Department;
+import com.greenhills.oauth2security.dto.LightweightCompany;
+import com.greenhills.oauth2security.dto.LightweightDepartment;
 import com.greenhills.oauth2security.service.CompanyService;
+import com.greenhills.oauth2security.service.DepartmentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +21,9 @@ public class CompanyController {
 
     @Autowired
     private CompanyService companyService;
+
+    @Autowired
+    private DepartmentService departmentService;
 
     @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody List<Company> getAll() {
@@ -37,6 +44,23 @@ public class CompanyController {
         return companyService.create(company);
     }
 
+    @GetMapping(value = "/lightweight/company", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody LightweightCompany getLightweight(@RequestBody String name) {
+        LOGGER.debug("get called");
+        return companyService.getLightweight(name);
+    }
 
+    @GetMapping(value = "department", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody Department get(@RequestBody Long id) {
+        LOGGER.debug("get Department called for id " + id);
+        return departmentService.get(id);
+    }
+
+    @GetMapping(value = "/lightweight/department", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    LightweightDepartment getLightweight(@RequestBody Long id) {
+        LOGGER.debug("get Department called for id " + id);
+        return departmentService.getLightweight(id);
+    }
 
 }
