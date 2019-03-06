@@ -4,6 +4,7 @@ import com.greenhills.oauth2security.dto.Company;
 import com.greenhills.oauth2security.dto.LightweightCompany;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CompanyService {
     Company get(Long id);
@@ -12,9 +13,11 @@ public interface CompanyService {
 
     LightweightCompany getLightweight(String name);
 
+    LightweightCompany getLightweight(Long id);
+
     List<Company> getAll();
 
-    Long create(Company company);
+    Optional<Long> create(Company company);
 
     Long update(Company company);
 

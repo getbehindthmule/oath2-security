@@ -9,10 +9,14 @@ import com.greenhills.oauth2security.service.DepartmentService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/secured")
@@ -25,42 +29,79 @@ public class CompanyController {
     @Autowired
     private DepartmentService departmentService;
 
-    @GetMapping(value = "all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody List<Company> getAll() {
+    @GetMapping(value = "companies", produces = MediaType.APPLICATION_JSON_VALUE)
+    public @ResponseBody
+    List<Company> getAllCompanies() {
         LOGGER.debug("getAll called");
         return companyService.getAll();
     }
 
+    @GetMapping(value = "companies/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Company> getCompany(@PathVariable Long id) {
+        LOGGER.debug("get called");
+        Company company = companyService.get(id);
+        return (company == null) ? ResponseEntity.notFound().build() : new ResponseEntity<>(company, HttpStatus.OK);
+    }
+
     @GetMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Company get(@RequestBody String name) {
+    public @ResponseBody
+    Company getCompany(@RequestBody String name) {
         LOGGER.debug("get called");
         return companyService.get(name);
     }
 
-    @PostMapping(value = "company", produces = MediaType.APPLICATION_JSON_VALUE)
-    public Long create(@RequestBody Company company) {
+    @PostMapping(value = "companies", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> createCompany(@RequestBody Company company) {
         LOGGER.debug("create called");
 
-        return companyService.create(company);
+        Optional<Long> id = companyService.create(company);
+
+        return (id.isPresent()) ? new ResponseEntity<>(id.get(), HttpStatus.CREATED) : ResponseEntity.noContent().build();
+
     }
 
     @GetMapping(value = "/lightweight/company", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody LightweightCompany getLightweight(@RequestBody String name) {
+    public @ResponseBody
+    LightweightCompany getLightweightCompany(@RequestBody String name) {
         LOGGER.debug("get called");
         return companyService.getLightweight(name);
     }
 
     @GetMapping(value = "department", produces = MediaType.APPLICATION_JSON_VALUE)
-    public @ResponseBody Department get(@RequestBody Long id) {
+    public @ResponseBody
+    Department getDepartment(@RequestBody Long id) {
         LOGGER.debug("get Department called for id " + id);
         return departmentService.get(id);
     }
 
     @GetMapping(value = "/lightweight/department", produces = MediaType.APPLICATION_JSON_VALUE)
     public @ResponseBody
-    LightweightDepartment getLightweight(@RequestBody Long id) {
+    LightweightDepartment getLightweightDepartment(@RequestBody Long id) {
         LOGGER.debug("get Department called for id " + id);
         return departmentService.getLightweight(id);
+    }
+
+    @GetMapping(value = "companies/{companyId}/departments", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<Department>> getDepartments(@PathVariable Long companyId) {
+        LOGGER.debug("get called");
+        Company company = companyService.get(companyId);
+
+        if (company == null) return ResponseEntity.notFound().build();
+
+        return new ResponseEntity<>(new ArrayList<>(company.getDepartments()), HttpStatus.OK);
+    }
+
+    @GetMapping(value = "companies/{companyId}/departments/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Department> getDepartments(@PathVariable Long companyId, @PathVariable Long departmentId) {
+        LOGGER.debug("get called");
+        LightweightCompany company = companyService.getLightweight(companyId);
+
+        if ((company == null) || (!company.getDepartmentIds().contains(departmentId))) return ResponseEntity.notFound().build();
+
+        Department department = departmentService.get(departmentId);
+        if (department == null) return ResponseEntity.notFound().build();
+
+        return new ResponseEntity<>(department, HttpStatus.OK);
     }
 
 }

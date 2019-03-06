@@ -104,4 +104,5 @@ public class DepartmentServiceImplTest {
         // assert
         assertThat(department).isEqualTo(expectedDepartment);
     }
+
 }

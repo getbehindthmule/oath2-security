@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -104,26 +105,29 @@ public class CompanyServiceImplTest {
     }
 
     @Test
+    public void testGetLightweightByIdWhenValueFound() {
+        // arrange
+        LightweightCompany expectedCompany = CompanyBuilderUtil.buildDefaultLightweightCompany();
+        when(companyRepository.findCompanyEntityById(1L)).thenReturn(CompanyBuilderUtil.buildDefaultCompanyEntity());
+
+        // act
+        LightweightCompany company = sut.getLightweight(1L);
+
+        // assert
+        assertThat(company).isEqualTo(expectedCompany);
+    }
+
+    @Test
     public void testCreateWhenCannotCreateEntity() {
         // arrange
 
         // act
-        Long company = sut.create(null);
+        Optional<Long> company = sut.create(null);
 
         // assert
-        assertThat(company).isNull();
+        assertThat(company.isPresent()).isFalse();
     }
 
-    @Test
-    public void testCreateWhenRepositoryReturnsNull() {
-        // arrange
-        when(companyRepository.save(any())).thenReturn(null);
-        // act
-        Long company = sut.create(CompanyBuilderUtil.buildDefaultCompany());
-
-        // assert
-        assertThat(company).isNull();
-    }
 
     @Test
     public void testCreateWhenSuccessful() {
@@ -134,21 +138,11 @@ public class CompanyServiceImplTest {
         inputCompany.setId(null);
 
         // act
-        Long actualCompany = sut.create(inputCompany);
+        Optional<Long> actualCompany = sut.create(inputCompany);
 
         // assert
-        assertThat(actualCompany).isEqualTo(expectedCompany.getId());
-    }
-
-    @Test
-    public void testCreateWhenCompanyPrimaryKeyIsDefined() {
-        // arrange
-
-        // act
-        Long company = sut.create(CompanyBuilderUtil.buildDefaultCompany());
-
-        // assert
-        assertThat(company).isNull();
+        assertThat(actualCompany.isPresent()).isTrue();
+        assertThat(actualCompany.get()).isEqualTo(expectedCompany.getId());
     }
 
 
@@ -207,5 +201,30 @@ public class CompanyServiceImplTest {
         assertThat(company).isEqualTo(expectedId);
     }
 
+    @Test
+    public void testGetIdValueFound() {
+        // arrange
+        Company expectedCompany = CompanyBuilderUtil.buildDefaultCompany();
+        when(companyRepository.findCompanyEntityById(1L)).thenReturn(CompanyBuilderUtil.buildDefaultCompanyEntity());
+
+        // act
+        Company company = sut.get(1L);
+
+        // assert
+        assertThat(company).isEqualTo(expectedCompany);
+    }
+
+    @Test
+    public void testGetIdValueNotFound() {
+        // arrange
+        Company expectedCompany = CompanyBuilderUtil.buildDefaultCompany();
+        when(companyRepository.findCompanyEntityById(1L)).thenReturn(null);
+
+        // act
+        Company company = sut.get(1L);
+
+        // assert
+        assertThat(company).isNull();
+    }
 
 }

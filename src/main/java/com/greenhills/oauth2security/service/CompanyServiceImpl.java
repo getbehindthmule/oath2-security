@@ -28,7 +28,7 @@ public class CompanyServiceImpl implements CompanyService {
     @PreAuthorize("hasAuthority('COMPANY_READ')")
     @Transactional
     public Company get(Long id) {
-        return CompanyBuilder.companyFromEntity(companyRepository.findById(id).orElse(null)).orElse(null);
+        return CompanyBuilder.companyFromEntity(companyRepository.findCompanyEntityById(id)).orElse(null);
     }
 
     @SecureRead
@@ -48,6 +48,14 @@ public class CompanyServiceImpl implements CompanyService {
         return CompanyBuilder.lightweightCompanyFromEntity(companyRepository.findByName(name)).orElse(null);
     }
 
+    @SecureRead
+    @Override
+    @PreAuthorize("hasAuthority('COMPANY_READ')")
+    @Transactional
+    public LightweightCompany getLightweight(Long id) {
+        return CompanyBuilder.lightweightCompanyFromEntity(companyRepository.findCompanyEntityById(id)).orElse(null);
+    }
+
     @Override
     @PreAuthorize("hasAuthority('ALL_COMPANY_READER')")
     public List<Company> getAll() {
@@ -62,13 +70,13 @@ public class CompanyServiceImpl implements CompanyService {
     @Override
     @PreAuthorize("hasAuthority('COMPANY_CREATE')")
     @Transactional
-    public Long create(Company company) {
+    public Optional<Long> create(Company company) {
         Optional<CompanyEntity> companyEntity = CompanyBuilder.entityFromCompany(company);
-        if (!companyEntity.isPresent() || (companyEntity.get().getId() != null)) return null;
+        if (!companyEntity.isPresent()) return Optional.empty();
 
         CompanyEntity savedCompany = companyRepository.save(companyEntity.get());
 
-        return Optional.ofNullable(savedCompany).map(CompanyEntity::getId).orElse(null);
+        return Optional.of(savedCompany.getId());
     }
 
     @Override

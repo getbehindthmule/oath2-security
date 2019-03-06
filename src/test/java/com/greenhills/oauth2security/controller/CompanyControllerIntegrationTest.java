@@ -161,7 +161,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = executeRestCall(token, get("/secured/all"), status().isOk());
+        MvcResult mvcResult = executeRestCall(token, get("/secured/companies"), status().isOk());
 
 
         // assert
@@ -176,7 +176,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readClientName, readClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = executeRestCall(token, get("/secured/all"), status().isOk());
+        MvcResult mvcResult = executeRestCall(token, get("/secured/companies"), status().isOk());
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -217,7 +217,7 @@ public class CompanyControllerIntegrationTest {
                 "}";
 
         // act
-        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().isCreated(), company);
 
 
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -263,7 +263,7 @@ public class CompanyControllerIntegrationTest {
                 "}";
 
         // act
-        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().is4xxClientError(), company);
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().is4xxClientError(), company);
 
         // assert
         JSONObject jsonResponse = new JSONObject(mvcResult.getResponse().getContentAsString());
@@ -337,7 +337,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().isCreated(), company);
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -347,13 +347,25 @@ public class CompanyControllerIntegrationTest {
     }
 
     @Test
+    public void testCreateCompanyWhenUndefined() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().is4xxClientError());
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
+    }
+
+    @Test
     public void testCreateCompanyWhenIdUndefined() throws Exception {
         // arrange
         final String company = "{\"name\":\"Green Hills\",\"departments\":[{\"id\":null,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[]}";
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().isCreated(), company);
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
@@ -368,7 +380,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.executeRestCall(token, post("/secured/company"), status().isOk(), company);
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().isCreated(), company);
 
         // assert
         entityManager = entityManagerFactory.createEntityManager();
@@ -483,6 +495,112 @@ public class CompanyControllerIntegrationTest {
 
         // assert
         assertThat(mvcResult.getResponse().getContentAsString()).isEmpty();
+    }
+
+    @Test
+    public void testGetCompanyByIdWhenFound() throws Exception {
+        // arrange
+        final String expectedResponse = "{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/2"), status().isOk());
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(expectedResponse);
+    }
+
+    @Test
+    public void testGetCompanyByIdWhenNotFound() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/99999"), status().is4xxClientError());
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void testGetCompanyDepartments() throws Exception {
+        // arrange
+        final String expectedAdministrationDepartment = "Administration";
+        final String expectedSalesMarketingDepartment = "Sales & Marketing";
+        final String expectedRDDepartment = "Research & Development";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/1/departments"), status().isOk());
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedAdministrationDepartment);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedSalesMarketingDepartment);
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedRDDepartment);
+    }
+
+    @Test
+    public void testGetCompanyDepartments_CompanyDoesNotExist() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/9999/departments"), status().is4xxClientError());
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void testGetCompanyDepartment_CompanyDoesNotExist() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/9999/departments/1"), status().is4xxClientError());
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void testGetCompanyDepartment_DepartmentDoesNotExist() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/1/departments/999"), status().is4xxClientError());
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+    }
+
+    @Test
+    public void testGetCompanyDepartment_DepartmentDoesExist() throws Exception {
+        // arrange
+        final String expectedDepartment = "Sales & Marketing";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/1/departments/1"), status().isOk());
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(mvcResult.getResponse().getContentAsString()).contains(expectedDepartment);
+    }
+
+    @Test
+    public void testGetCompanyDepartment_DepartmentNotInCompany() throws Exception {
+        // arrange
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/1/departments/5"), status().is4xxClientError());
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
     }
 
 }
