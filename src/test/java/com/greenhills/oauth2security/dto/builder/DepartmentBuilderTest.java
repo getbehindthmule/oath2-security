@@ -616,4 +616,35 @@ public class DepartmentBuilderTest {
 
     }
 
+    @Test
+    public void testEntityFromLightweightDepartmentWhenNullDepartment(){
+        // arrange
+
+        // act
+        Optional<DepartmentEntity> departmentEntity = DepartmentBuilder.entityFromLightweightDepartmen(null);
+
+        // assert
+        assertThat(departmentEntity.isPresent()).isFalse();
+    }
+
+    @Test
+    public void testEntityFromLightweightDepartmentWhenDepartmentPresent(){
+        // arrange
+        DepartmentEntity expectedDepartmentEntity = buildDefaultTestDepartmentEntity();
+        expectedDepartmentEntity.setCompany(null);
+        expectedDepartmentEntity.setOffices(Collections.EMPTY_SET);
+        expectedDepartmentEntity.setEmployees(Collections.EMPTY_SET);
+        LightweightDepartment lightweightDepartment = buildDefaultLightweightTestDepartment();
+        lightweightDepartment.setCompanyId(null);
+        lightweightDepartment.setOfficeIds(Collections.EMPTY_SET);
+        lightweightDepartment.setEmployeeIds(Collections.EMPTY_SET);
+
+        // act
+        Optional<DepartmentEntity> actualDepartmentEntity = DepartmentBuilder.entityFromLightweightDepartmen(lightweightDepartment);
+
+        // assert
+        assertThat(actualDepartmentEntity.isPresent()).isTrue();
+        assertThat(actualDepartmentEntity.get()).isEqualTo(expectedDepartmentEntity);
+    }
+
 }

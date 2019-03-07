@@ -4,6 +4,7 @@ import com.greenhills.oauth2security.dto.Department;
 import com.greenhills.oauth2security.dto.LightweightDepartment;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DepartmentService {
     Department get(Long id);
@@ -11,4 +12,6 @@ public interface DepartmentService {
     LightweightDepartment getLightweight(Long id);
 
     List<Department> getAll();
+
+    Optional<Long> create(LightweightDepartment company);
 }

@@ -1,17 +1,11 @@
 package com.greenhills.oauth2security.dto.builder;
 
-import com.greenhills.oauth2security.dto.Department;
-import com.greenhills.oauth2security.dto.Employee;
-import com.greenhills.oauth2security.dto.LightweightDepartment;
-import com.greenhills.oauth2security.dto.Office;
+import com.greenhills.oauth2security.dto.*;
 import com.greenhills.oauth2security.model.business.DepartmentEntity;
 import com.greenhills.oauth2security.model.business.EmployeeEntity;
 import com.greenhills.oauth2security.model.business.OfficeEntity;
 
-import java.util.HashSet;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @SuppressWarnings("Duplicates")
@@ -100,6 +94,18 @@ public class DepartmentBuilder {
 
         departmentEntity.getEmployees().forEach(employee -> employee.setDepartment(departmentEntity));
         departmentEntity.getOffices().forEach(office -> office.setDepartment(departmentEntity));
+
+        return Optional.of(departmentEntity);
+    }
+
+    public static Optional<DepartmentEntity> entityFromLightweightDepartmen(LightweightDepartment department) {
+        if (department == null) return Optional.empty();
+
+        DepartmentEntity departmentEntity = new DepartmentEntity();
+        departmentEntity.setId(department.getId());
+        departmentEntity.setName(department.getName());
+        departmentEntity.setEmployees(Collections.EMPTY_SET);
+        departmentEntity.setOffices(Collections.EMPTY_SET);
 
         return Optional.of(departmentEntity);
     }

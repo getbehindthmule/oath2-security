@@ -3,6 +3,7 @@ package com.greenhills.oauth2security.controller;
 
 import com.greenhills.oauth2security.Application;
 import com.greenhills.oauth2security.model.business.CompanyEntity;
+import com.greenhills.oauth2security.model.business.DepartmentEntity;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Test;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -54,7 +56,7 @@ public class CompanyControllerIntegrationTest {
     final String readerUserPassword = "reader1234";
 
 
-    final String findAllCompaniesResponse = "[{\"id\":1,\"name\":\"Pepsi\",\"departments\":[{\"id\":3,\"name\":\"Administration\",\"employees\":[{\"id\":3,\"name\":\"Donald\",\"surname\":\"Tyler\",\"address\":{\"id\":3,\"street\":\"Street Z\",\"houseNumber\":\"3\",\"zipCode\":\"12-343\"}}],\"offices\":[{\"id\":4,\"name\":\"OfficeEntity of A Los Angeles\",\"address\":{\"id\":7,\"street\":\"Street XXX\",\"houseNumber\":\"7\",\"zipCode\":\"12-347\"}}]},{\"id\":2,\"name\":\"Research & Development\",\"employees\":[{\"id\":2,\"name\":\"Robert\",\"surname\":\"James\",\"address\":{\"id\":2,\"street\":\"Street Y\",\"houseNumber\":\"2\",\"zipCode\":\"12-342\"}}],\"offices\":[{\"id\":3,\"name\":\"OfficeEntity of R&D Boston\",\"address\":{\"id\":6,\"street\":\"Street ZZ\",\"houseNumber\":\"6\",\"zipCode\":\"12-346\"}}]},{\"id\":1,\"name\":\"Sales & Marketing\",\"employees\":[{\"id\":1,\"name\":\"John\",\"surname\":\"William\",\"address\":{\"id\":1,\"street\":\"Street X\",\"houseNumber\":\"1\",\"zipCode\":\"12-341\"}}],\"offices\":[{\"id\":1,\"name\":\"OfficeEntity of S&M Boston\",\"address\":{\"id\":4,\"street\":\"Street XX\",\"houseNumber\":\"4\",\"zipCode\":\"12-344\"}},{\"id\":2,\"name\":\"OfficeEntity of S&M New York\",\"address\":{\"id\":5,\"street\":\"Street YY\",\"houseNumber\":\"5\",\"zipCode\":\"12-345\"}}]}],\"cars\":[{\"id\":1,\"registrationNumber\":\"XYZ10ABC\"},{\"id\":3,\"registrationNumber\":\"XYZ12ABC\"},{\"id\":2,\"registrationNumber\":\"XYZ11ABC\"}]},{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]},{\"id\":3,\"name\":\"Sprite\",\"departments\":[{\"id\":5,\"name\":\"Sales & Marketing\",\"employees\":[],\"offices\":[]}],\"cars\":[]}]";
+    final String findAllCompaniesResponse = "[{\"id\":1,\"name\":\"Pepsi\",\"departments\":[{\"id\":3,\"name\":\"Administration\",\"employees\":[{\"id\":3,\"name\":\"Donald\",\"surname\":\"Tyler\",\"address\":{\"id\":3,\"street\":\"Street Z\",\"houseNumber\":\"3\",\"zipCode\":\"12-343\"}}],\"offices\":[{\"id\":4,\"name\":\"OfficeEntity of A Los Angeles\",\"address\":{\"id\":7,\"street\":\"Street XXX\",\"houseNumber\":\"7\",\"zipCode\":\"12-347\"}}]},{\"id\":2,\"name\":\"Research & Development\",\"employees\":[{\"id\":2,\"name\":\"Robert\",\"surname\":\"James\",\"address\":{\"id\":2,\"street\":\"Street Y\",\"houseNumber\":\"2\",\"zipCode\":\"12-342\"}}],\"offices\":[{\"id\":3,\"name\":\"OfficeEntity of R&D Boston\",\"address\":{\"id\":6,\"street\":\"Street ZZ\",\"houseNumber\":\"6\",\"zipCode\":\"12-346\"}}]},{\"id\":1,\"name\":\"Sales & Marketing\",\"employees\":[{\"id\":1,\"name\":\"John\",\"surname\":\"William\",\"address\":{\"id\":1,\"street\":\"Street X\",\"houseNumber\":\"1\",\"zipCode\":\"12-341\"}}],\"offices\":[{\"id\":1,\"name\":\"OfficeEntity of S&M Boston\",\"address\":{\"id\":4,\"street\":\"Street XX\",\"houseNumber\":\"4\",\"zipCode\":\"12-344\"}},{\"id\":2,\"name\":\"OfficeEntity of S&M New York\",\"address\":{\"id\":5,\"street\":\"Street YY\",\"houseNumber\":\"5\",\"zipCode\":\"12-345\"}}]}],\"cars\":[{\"id\":1,\"registrationNumber\":\"XYZ10ABC\"},{\"id\":3,\"registrationNumber\":\"XYZ12ABC\"},{\"id\":2,\"registrationNumber\":\"XYZ11ABC\"}]},{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]},{\"id\":3,\"name\":\"Sprite\",\"departments\":[{\"id\":5,\"name\":\"Sales & Marketing\",\"employees\":[],\"offices\":[]}],\"cars\":[]},{\"id\":4,\"name\":\"Irn Bru\",\"departments\":[{\"id\":6,\"name\":\"Manufacturing\",\"employees\":[],\"offices\":[]}],\"cars\":[]}]";
     @Autowired
     private MockMvc mockMvc;
 
@@ -93,14 +95,27 @@ public class CompanyControllerIntegrationTest {
         return resultSet.size() == 1;
     }
 
+    private Boolean findDepartment(String name) {
+        entityManager = entityManagerFactory.createEntityManager();
+        Query query = entityManager.createQuery("FROM DepartmentEntity WHERE name = :name", DepartmentEntity.class);
+        query.setParameter("name", name);
+        List<CompanyEntity> resultSet = query.getResultList();
+
+        entityManager.close();
+
+        return resultSet.size() == 1;
+    }
+
 
     @After
     public void tearDown() {
         entityManager = entityManagerFactory.createEntityManager();
         entityManager.getTransaction().begin();
-        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 3", CompanyEntity.class).getResultList();
+        List<CompanyEntity> companyEntityList = entityManager.createQuery("FROM CompanyEntity WHERE id > 4", CompanyEntity.class).getResultList();
+        companyEntityList.forEach(entityManager::remove);
 
-        resultSet.forEach(entityManager::remove);
+        List<DepartmentEntity> departmentEntityList = entityManager.createQuery("FROM DepartmentEntity WHERE id > 6", DepartmentEntity.class).getResultList();
+        departmentEntityList.forEach(entityManager::remove);
         entityManager.getTransaction().commit();
         entityManager.close();
     }
@@ -191,7 +206,7 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = executeRestCall("", get("/secured/all"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(401);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -203,7 +218,7 @@ public class CompanyControllerIntegrationTest {
 
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(401);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
     @Test
@@ -355,7 +370,7 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(400);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST.value());
     }
 
     @Test
@@ -384,7 +399,7 @@ public class CompanyControllerIntegrationTest {
 
         // assert
         entityManager = entityManagerFactory.createEntityManager();
-        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 3", CompanyEntity.class).getResultList();
+        List<CompanyEntity> resultSet = entityManager.createQuery("FROM CompanyEntity WHERE id > 4", CompanyEntity.class).getResultList();
 
         Timestamp now = Timestamp.valueOf(LocalDate.now().atStartOfDay());
         assertThat(resultSet).hasSize(1)
@@ -520,7 +535,7 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/99999"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -550,7 +565,7 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/9999/departments"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -562,7 +577,7 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/9999/departments/1"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -574,7 +589,7 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/1/departments/999"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
@@ -600,7 +615,61 @@ public class CompanyControllerIntegrationTest {
         MvcResult mvcResult = this.executeRestCall(token, get("/secured/companies/1/departments/5"), status().is4xxClientError());
 
         // assert
-        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(404);
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void testCreateNewDepartment() throws Exception {
+        // arrange
+        final String department = "{\"id\":null,\"name\":\"New Department\",\"employees\":[],\"offices\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies/1/departments"), status().isCreated(), department);
+
+        // assert
+        assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
+        assertThat(Long.parseLong(mvcResult.getResponse().getContentAsString())).isGreaterThan(5L);
+        assertThat(this.findDepartment("New Department")).isTrue();
+    }
+
+    @Test
+    public void testCreateNewDepartmentWhenCompanyDoesNotExist() throws Exception {
+        // arrange
+        final String department = "{\"id\":null,\"name\":\"New Department\",\"employees\":[],\"offices\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies/99/departments"), status().isNoContent(), department);
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
+    }
+
+    @Test
+    public void testCreateNewDepartmentWhenNoRoleAccess() throws Exception {
+        // arrange
+        final String department = "{\"id\":null,\"name\":\"New Department\",\"employees\":[],\"offices\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, readerUserName, readerUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies/1/departments"), status().isForbidden(), department);
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.FORBIDDEN.value());
+    }
+
+    @Test
+    public void testCreateNewDepartmentWhenNoAccessToSpecificCompany() throws Exception {
+        // arrange
+        final String department = "{\"id\":null,\"name\":\"New Department\",\"employees\":[],\"offices\":[]}";
+        final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
+
+        // act
+        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies/4/departments"), status().isNoContent(), department);
+
+        // assert
+        assertThat(mvcResult.getResponse().getStatus()).isEqualTo(HttpStatus.NO_CONTENT.value());
     }
 
 }

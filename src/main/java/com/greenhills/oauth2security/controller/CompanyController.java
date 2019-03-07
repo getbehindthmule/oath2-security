@@ -104,4 +104,12 @@ public class CompanyController {
         return new ResponseEntity<>(department, HttpStatus.OK);
     }
 
+    @PostMapping(value = "companies/{companyId}/departments", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Long> createDepartment(@PathVariable Long companyId, @RequestBody LightweightDepartment department) {
+        LOGGER.debug("create department");
+        department.setCompanyId(companyId);
+        Optional<Long> id = departmentService.create(department);
+
+        return (id.isPresent()) ? new ResponseEntity<>(id.get(), HttpStatus.CREATED) : ResponseEntity.noContent().build();
+    }
 }
