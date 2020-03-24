@@ -20,10 +20,11 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent", "WeakerAccess"})
 public class DepartmentServiceImplTest {
-    DepartmentRepository departmentRepository = mock(DepartmentRepository.class);
-    CompanyRepository companyRepository = mock(CompanyRepository.class);
-    DepartmentServiceImpl sut;
+    private final DepartmentRepository departmentRepository = mock(DepartmentRepository.class);
+    private final CompanyRepository companyRepository = mock(CompanyRepository.class);
+    private DepartmentServiceImpl sut;
 
     @Before
     public void setUp(){

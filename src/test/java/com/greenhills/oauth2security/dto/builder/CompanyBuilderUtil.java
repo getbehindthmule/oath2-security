@@ -11,23 +11,24 @@ import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toSet;
 
+@SuppressWarnings("SpellCheckingInspection")
 public class CompanyBuilderUtil {
-    final static String street = "Taits Lane";
-    final static String houseNumber = "35";
-    final static String zipCode = "DD6 9BW";
+    private final static String street = "Taits Lane";
+    private final static String houseNumber = "35";
+    private final static String zipCode = "DD6 9BW";
 
-    final static String employeeName = "alan";
-    final static String employeeSurname = "partridge";
+    private final static String employeeName = "alan";
+    private final static String employeeSurname = "partridge";
 
-    final static String officeName = "planning";
+    private final static String officeName = "planning";
 
-    final static String departmentName = "HR";
+    private final static String departmentName = "HR";
 
-    final static String reg = "YC 12 EOT";
+    private final static String reg = "YC 12 EOT";
 
-    final static String companyName = "Green Hills";
+    private final static String companyName = "Green Hills";
 
-    static public AddressEntity getTestAddressEntity(Long id) {
+    private static AddressEntity getTestAddressEntity(Long id) {
         final AddressEntity addressEntity = new AddressEntity();
         addressEntity.setId(id);
         addressEntity.setStreet(street);
@@ -37,7 +38,7 @@ public class CompanyBuilderUtil {
         return addressEntity;
     }
 
-    static public Address getTestAddress(Long id) {
+    private static Address getTestAddress(Long id) {
         return Address.builder()
                 .id(id)
                 .street(street)
@@ -46,7 +47,7 @@ public class CompanyBuilderUtil {
                 .build();
     }
 
-    static public OfficeEntity getTestOfficeEntity(Long id) {
+    private static OfficeEntity getTestOfficeEntity(Long id) {
         final OfficeEntity officeEntity = new OfficeEntity();
         officeEntity.setId(id);
         officeEntity.setName(officeName);
@@ -56,7 +57,7 @@ public class CompanyBuilderUtil {
         return officeEntity;
     }
 
-    static public Office getTestOffice(Long id) {
+    private static Office getTestOffice(Long id) {
         return Office.builder()
                 .id(id)
                 .name(officeName)
@@ -65,7 +66,7 @@ public class CompanyBuilderUtil {
                 .build();
     }
 
-    static public EmployeeEntity getTestEmployeeEntity(Long id) {
+    private static EmployeeEntity getTestEmployeeEntity(Long id) {
         EmployeeEntity employeeEntity = new EmployeeEntity();
         employeeEntity.setId(id);
         employeeEntity.setAddress(getTestAddressEntity(id));
@@ -76,7 +77,7 @@ public class CompanyBuilderUtil {
         return employeeEntity;
     }
 
-    static public Employee getTestEmployee(Long id) {
+    private static Employee getTestEmployee(Long id) {
         return Employee.builder()
                 .id(id)
                 .address(getTestAddress(id))
@@ -106,18 +107,12 @@ public class CompanyBuilderUtil {
 
         Set<OfficeEntity> officeEntities = LongStream.rangeClosed(1, 2)
                 .mapToObj(CompanyBuilderUtil::getTestOfficeEntity)
-                .map(office -> {
-                    office.setDepartment(departmentEntity);
-                    return office;
-                })
+                .peek(office -> office.setDepartment(departmentEntity))
                 .collect(toSet());
 
         Set<EmployeeEntity> employeeEntities = LongStream.rangeClosed(1, 2)
                 .mapToObj(CompanyBuilderUtil::getTestEmployeeEntity)
-                .map(employee -> {
-                    employee.setDepartment(departmentEntity);
-                    return employee;
-                })
+                .peek(employee -> employee.setDepartment(departmentEntity))
                 .collect(toSet());
 
         departmentEntity.setId(id);
@@ -137,18 +132,12 @@ public class CompanyBuilderUtil {
 
         Set<Office> offices = LongStream.rangeClosed(1, 2)
                 .mapToObj(CompanyBuilderUtil::getTestOffice)
-                .map(office -> {
-                    office.setDepartment(department);
-                    return office;
-                })
+                .peek(office -> office.setDepartment(department))
                 .collect(toSet());
 
         Set<Employee> employees = LongStream.rangeClosed(1, 2)
                 .mapToObj(CompanyBuilderUtil::getTestEmployee)
-                .map(employee -> {
-                    employee.setDepartment(department);
-                    return employee;
-                })
+                .peek(employee -> employee.setDepartment(department))
                 .collect(toSet());
 
 
@@ -162,18 +151,12 @@ public class CompanyBuilderUtil {
         CompanyEntity companyEntity = new CompanyEntity();
         Set<CarEntity> carEntities = LongStream.rangeClosed(1, 10)
                 .mapToObj(CompanyBuilderUtil::getTestCarEntity)
-                .map(car -> {
-                    car.setCompany(companyEntity);
-                    return car;
-                })
+                .peek(car -> car.setCompany(companyEntity))
                 .collect(toSet());
 
         Set<DepartmentEntity> departmentEntities = LongStream.rangeClosed(1, 5)
                 .mapToObj(CompanyBuilderUtil::getTestDepartmentEntity)
-                .map(dept -> {
-                    dept.setCompany(companyEntity);
-                    return dept;
-                })
+                .peek(dept -> dept.setCompany(companyEntity))
                 .collect(toSet());
 
         companyEntity.setId(1L);
@@ -191,18 +174,12 @@ public class CompanyBuilderUtil {
 
         Set<Car> cars = LongStream.rangeClosed(1, 10)
                 .mapToObj(CompanyBuilderUtil::getTestCar)
-                .map(car -> {
-                    car.setCompany(company);
-                    return car;
-                })
+                .peek(car -> car.setCompany(company))
                 .collect(toSet());
 
         Set<Department> departments = LongStream.rangeClosed(1, 5)
                 .mapToObj(CompanyBuilderUtil::getTestDepartment)
-                .map(dept -> {
-                    dept.setCompany(company);
-                    return dept;
-                })
+                .peek(dept -> dept.setCompany(company))
                 .collect(toSet());
 
         company.setCars(cars);

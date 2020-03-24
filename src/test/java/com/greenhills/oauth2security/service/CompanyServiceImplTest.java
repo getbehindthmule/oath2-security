@@ -18,9 +18,10 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings({"unchecked", "OptionalGetWithoutIsPresent", "WeakerAccess"})
 public class CompanyServiceImplTest {
-    CompanyRepository companyRepository = mock(CompanyRepository.class);
-    CompanyServiceImpl sut;
+    private final CompanyRepository companyRepository = mock(CompanyRepository.class);
+    private CompanyServiceImpl sut;
 
     @Before
     public void setUp() {
@@ -187,7 +188,6 @@ public class CompanyServiceImplTest {
     public void testUpdateWhenCompanyPrimaryKeyIsDefined() {
         // arrange
         Long updatedId = 2L;
-        Long expectedId = updatedId;
         Company inputCompany = CompanyBuilderUtil.buildDefaultCompany();
         inputCompany.setId(updatedId);
         CompanyEntity companyEntity = CompanyBuilderUtil.buildDefaultCompanyEntity();
@@ -198,7 +198,7 @@ public class CompanyServiceImplTest {
         Long company = sut.update(CompanyBuilderUtil.buildDefaultCompany());
 
         // assert
-        assertThat(company).isEqualTo(expectedId);
+        assertThat(company).isEqualTo(updatedId);
     }
 
     @Test
@@ -217,7 +217,6 @@ public class CompanyServiceImplTest {
     @Test
     public void testGetIdValueNotFound() {
         // arrange
-        Company expectedCompany = CompanyBuilderUtil.buildDefaultCompany();
         when(companyRepository.findCompanyEntityById(1L)).thenReturn(null);
 
         // act

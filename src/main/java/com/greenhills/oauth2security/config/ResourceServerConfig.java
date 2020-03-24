@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.config.annotation.web.configurers.Res
 
 @Configuration
 @EnableResourceServer
-public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
+class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     private static final String RESOURCE_ID = "resource-server-rest-api";
     private static final String SECURED_READ_SCOPE = "#oauth2.hasScope('read')";

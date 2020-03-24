@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -62,7 +63,7 @@ public class DepartmentServiceImpl implements DepartmentService {
         if (department == null) return Optional.empty();
 
         CompanyEntity companyEntity = companyRepository.findCompanyEntityById(department.getCompanyId());
-        Optional<DepartmentEntity> departmentEntity = DepartmentBuilder.entityFromLightweightDepartmen(department);
+        Optional<DepartmentEntity> departmentEntity = DepartmentBuilder.entityFromLightweightDepartment(department);
         if ((companyEntity == null) || !departmentEntity.isPresent()) return Optional.empty();
 
         departmentEntity.get().setCompany(companyEntity);
@@ -71,10 +72,27 @@ public class DepartmentServiceImpl implements DepartmentService {
         CompanyEntity savedCompanyEntity = companyRepository.save(companyEntity);
 
         Optional<DepartmentEntity> savedDepartmentEntity = savedCompanyEntity.getDepartments().stream()
-                .filter(d -> d.getName() == department.getName() )
+                .filter(d -> Objects.equals(d.getName(), department.getName()))
                 .findFirst();
 
 
         return savedDepartmentEntity.map(DepartmentEntity::getId);
     }
+
+    @Override
+    @SecureRead
+    @PreAuthorize("hasAuthority('DEPARTMENT_UPDATE') and hasAuthority('COMPANY_READ')")
+    @Transactional
+    public Department update(LightweightDepartment department) {
+        if (department == null) return null;
+
+        DepartmentEntity departmentEntity = departmentRepository.findDepartmentEntitiesById(department.getId());
+        if ((departmentEntity == null) || (departmentEntity.getCompany().getId() != department.getCompanyId())) return null;
+
+        departmentEntity.setName(department.getName());
+
+        return DepartmentBuilder.departmentFromEntity(departmentRepository.save(departmentEntity)).orElse(null);
+    }
+
+
 }

@@ -1,3 +1,5 @@
+-- noinspection SqlResolveForFile
+
 CREATE TABLE APP_USERS_COMPANIES
 (
   USER_ID      BIGINT NOT NULL,

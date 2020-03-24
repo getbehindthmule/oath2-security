@@ -1,7 +1,6 @@
 package com.greenhills.oauth2security.model.security;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.greenhills.oauth2security.dto.Company;
 import com.greenhills.oauth2security.model.business.CompanyEntity;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;

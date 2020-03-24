@@ -6,6 +6,7 @@ import com.greenhills.oauth2security.dto.LightweightCompany;
 import java.util.List;
 import java.util.Optional;
 
+@SuppressWarnings({"EmptyMethod", "unused"})
 public interface CompanyService {
     Company get(Long id);
 

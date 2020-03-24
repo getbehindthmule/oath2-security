@@ -6,6 +6,7 @@ import com.greenhills.oauth2security.model.business.OfficeEntity;
 
 import java.util.Optional;
 
+@SuppressWarnings("WeakerAccess")
 public class OfficeBuilder {
     static Optional<Office> officeFromEntity(OfficeEntity officeEntity){
         if (officeEntity == null) return Optional.empty();

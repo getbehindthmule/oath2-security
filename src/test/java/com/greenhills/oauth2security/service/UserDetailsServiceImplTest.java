@@ -15,8 +15,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@SuppressWarnings("WeakerAccess")
 public class UserDetailsServiceImplTest {
-    private UserRepository userRepository = mock(UserRepository.class);
+    private final UserRepository userRepository = mock(UserRepository.class);
 
     private UserDetailsServiceImpl sut;
 
@@ -33,7 +34,7 @@ public class UserDetailsServiceImplTest {
         when(userRepository.findByUsername(anyString())).thenReturn(null);
 
         // act
-        Throwable thrown = catchThrowable( () -> {  sut.loadUserByUsername(userName);});
+        Throwable thrown = catchThrowable( () -> sut.loadUserByUsername(userName));
 
         // assert
         assertThat(thrown).hasMessage(userName);

@@ -20,7 +20,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/secured")
-public class CompanyController {
+class CompanyController {
     private static final Logger LOGGER = LoggerFactory.getLogger(CompanyController.class);
 
     @Autowired
@@ -56,7 +56,7 @@ public class CompanyController {
 
         Optional<Long> id = companyService.create(company);
 
-        return (id.isPresent()) ? new ResponseEntity<>(id.get(), HttpStatus.CREATED) : ResponseEntity.noContent().build();
+        return id.map(aLong -> new ResponseEntity<>(aLong, HttpStatus.CREATED)).orElseGet(() -> ResponseEntity.noContent().build());
 
     }
 
@@ -111,5 +111,15 @@ public class CompanyController {
         Optional<Long> id = departmentService.create(department);
 
         return (id.isPresent()) ? new ResponseEntity<>(id.get(), HttpStatus.CREATED) : ResponseEntity.noContent().build();
+    }
+
+
+    @PutMapping(value = "companies/{companyId}/departments/{departmentId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public  @ResponseBody  Department createDepartment(@PathVariable Long companyId, @PathVariable Long departmentId, @RequestBody LightweightDepartment department) {
+        LOGGER.debug("update department");
+        department.setCompanyId(companyId);
+        Optional<Long> id = departmentService.create(department);
+
+        return null;
     }
 }

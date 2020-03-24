@@ -12,14 +12,15 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings({"OptionalGetWithoutIsPresent", "SpellCheckingInspection", "WeakerAccess"})
 public class EmployeeBuilderTest {
-    final Long id = 2L;
-    final Long deptId = 3L;
-    final String street = "Taits Lane";
-    final String houseNumber = "35";
-    final String zipCode = "DD6 9BW";
-    final String name = "alan";
-    final String surname = "partridge";
+    private final Long id = 2L;
+    private final Long deptId = 3L;
+    private final String street = "Taits Lane";
+    private final String houseNumber = "35";
+    private final String zipCode = "DD6 9BW";
+    private final String name = "alan";
+    private final String surname = "partridge";
 
     private AddressEntity getTestAddressEntity() {
         final AddressEntity addressEntity = new AddressEntity();

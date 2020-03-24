@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Aspect
 @Component
-public class SecureAspect {
+class SecureAspect {
 
     @Autowired
     EntityManager entityManager;

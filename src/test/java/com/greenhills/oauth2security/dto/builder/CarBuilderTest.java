@@ -11,6 +11,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings({"OptionalGetWithoutIsPresent", "WeakerAccess"})
 public class CarBuilderTest {
 
     @Test

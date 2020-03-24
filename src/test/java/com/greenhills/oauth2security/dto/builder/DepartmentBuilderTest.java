@@ -14,17 +14,18 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@SuppressWarnings({"unchecked", "AccessStaticViaInstance", "SameParameterValue", "OptionalGetWithoutIsPresent", "SpellCheckingInspection", "WeakerAccess"})
 public class DepartmentBuilderTest {
-    final static String street = "Taits Lane";
-    final static String houseNumber = "35";
-    final static String zipCode = "DD6 9BW";
+    private final static String street = "Taits Lane";
+    private final static String houseNumber = "35";
+    private final static String zipCode = "DD6 9BW";
 
-    final static String empoyeeName = "alan";
-    final static String employeeSurname = "partridge";
+    private final static String empoyeeName = "alan";
+    private final static String employeeSurname = "partridge";
 
-    final static String officeName = "planning";
+    private final static String officeName = "planning";
 
-    final static String departmentName = "HR";
+    private final static String departmentName = "HR";
 
     private static AddressEntity getTestAddressEntity(Long id) {
         final AddressEntity addressEntity = new AddressEntity();
@@ -98,18 +99,12 @@ public class DepartmentBuilderTest {
 
         Set<OfficeEntity> officeEntities = LongStream.rangeClosed(1, 2)
                 .mapToObj(DepartmentBuilderTest::getTestOfficeEntity)
-                .map(office -> {
-                    office.setDepartment(departmentEntity);
-                    return office;
-                })
+                .peek(office -> office.setDepartment(departmentEntity))
                 .collect(Collectors.toSet());
 
         Set<EmployeeEntity> employeeEntities = LongStream.rangeClosed(1, 2)
                 .mapToObj(DepartmentBuilderTest::getTestEmployeeEntity)
-                .map(employee -> {
-                    employee.setDepartment(departmentEntity);
-                    return employee;
-                })
+                .peek(employee -> employee.setDepartment(departmentEntity))
                 .collect(Collectors.toSet());
 
         departmentEntity.setId(1L);
@@ -130,18 +125,12 @@ public class DepartmentBuilderTest {
 
         Set<Office> offices = LongStream.rangeClosed(1, 2)
                 .mapToObj(DepartmentBuilderTest::getTestOffice)
-                .map(office -> {
-                    office.setDepartment(department);
-                    return office;
-                })
+                .peek(office -> office.setDepartment(department))
                 .collect(Collectors.toSet());
 
         Set<Employee> employees = LongStream.rangeClosed(1, 2)
                 .mapToObj(DepartmentBuilderTest::getTestEmployee)
-                .map(employee -> {
-                    employee.setDepartment(department);
-                    return employee;
-                })
+                .peek(employee -> employee.setDepartment(department))
                 .collect(Collectors.toSet());
 
 
@@ -621,7 +610,7 @@ public class DepartmentBuilderTest {
         // arrange
 
         // act
-        Optional<DepartmentEntity> departmentEntity = DepartmentBuilder.entityFromLightweightDepartmen(null);
+        Optional<DepartmentEntity> departmentEntity = DepartmentBuilder.entityFromLightweightDepartment(null);
 
         // assert
         assertThat(departmentEntity.isPresent()).isFalse();
@@ -640,7 +629,7 @@ public class DepartmentBuilderTest {
         lightweightDepartment.setEmployeeIds(Collections.EMPTY_SET);
 
         // act
-        Optional<DepartmentEntity> actualDepartmentEntity = DepartmentBuilder.entityFromLightweightDepartmen(lightweightDepartment);
+        Optional<DepartmentEntity> actualDepartmentEntity = DepartmentBuilder.entityFromLightweightDepartment(lightweightDepartment);
 
         // assert
         assertThat(actualDepartmentEntity.isPresent()).isTrue();

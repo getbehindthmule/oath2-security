@@ -6,6 +6,7 @@ import com.greenhills.oauth2security.model.business.CarEntity;
 
 import java.util.Optional;
 
+@SuppressWarnings("WeakerAccess")
 public class CarBuilder {
     static Optional<Car> carFromEntity(CarEntity carEntity) {
         if (carEntity == null) return Optional.empty();

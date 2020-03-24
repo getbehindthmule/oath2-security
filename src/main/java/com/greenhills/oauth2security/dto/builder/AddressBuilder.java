@@ -5,6 +5,7 @@ import com.greenhills.oauth2security.model.business.AddressEntity;
 
 import java.util.Optional;
 
+@SuppressWarnings("WeakerAccess")
 public class AddressBuilder {
     static Optional<Address> addressFromEntity(AddressEntity addressEntity) {
         if (addressEntity == null) return Optional.empty();

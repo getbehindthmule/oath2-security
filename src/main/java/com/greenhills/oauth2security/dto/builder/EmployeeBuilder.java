@@ -6,6 +6,7 @@ import com.greenhills.oauth2security.model.business.EmployeeEntity;
 
 import java.util.Optional;
 
+@SuppressWarnings("WeakerAccess")
 public class EmployeeBuilder {
     static Optional<Employee> employeeFromEntity(EmployeeEntity employeeEntity) {
         if (employeeEntity == null) return Optional.empty();

@@ -36,8 +36,7 @@ public class CompanyServiceImpl implements CompanyService {
     @PreAuthorize("hasAuthority('COMPANY_READ')")
     @Transactional
     public Company get(String name) {
-        Company company = CompanyBuilder.companyFromEntity(companyRepository.findByName(name)).orElse(null);
-        return company;
+        return CompanyBuilder.companyFromEntity(companyRepository.findByName(name)).orElse(null);
     }
 
     @SecureRead

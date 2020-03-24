@@ -20,11 +20,12 @@ import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 
 import javax.sql.DataSource;
 
+@SuppressWarnings("WeakerAccess")
 @Configuration
 @EnableAuthorizationServer
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 @Import(ServerSecurityConfig.class)
-public class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter {
+class AuthServerOAuth2Config extends AuthorizationServerConfigurerAdapter {
 
     @Autowired
     @Qualifier("dataSource")

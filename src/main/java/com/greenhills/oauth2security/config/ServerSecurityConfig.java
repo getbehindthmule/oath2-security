@@ -14,10 +14,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
+@SuppressWarnings("EmptyMethod")
 @Configuration
 @EnableWebSecurity
 @Import(Encoders.class)
-public class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
+class ServerSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     @Qualifier("userDetailsServiceImpl")

@@ -36,6 +36,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+@SuppressWarnings({"SyntaxError", "unchecked", "SameParameterValue", "SpellCheckingInspection", "WeakerAccess"})
 @RunWith(SpringRunner.class)
 @AutoConfigureMockMvc
 @SpringBootTest(classes = Application.class)
@@ -45,18 +46,18 @@ public class CompanyControllerIntegrationTest {
     private EntityManagerFactory entityManagerFactory;
     private EntityManager entityManager;
 
-    final String readWriteClientName = "spring-security-oauth2-read-write-client";
-    final String readWriteClientPassword = "spring-security-oauth2-read-write-client-password1234";
-    final String readClientName = "spring-security-oauth2-read-client";
-    final String readClientPassword = "spring-security-oauth2-read-client-password1234";
+    private final String readWriteClientName = "spring-security-oauth2-read-write-client";
+    private final String readWriteClientPassword = "spring-security-oauth2-read-write-client-password1234";
+    private final String readClientName = "spring-security-oauth2-read-client";
+    private final String readClientPassword = "spring-security-oauth2-read-client-password1234";
 
-    final String adminUserName = "admin";
-    final String adminUserPassword = "admin1234";
-    final String readerUserName = "reader";
-    final String readerUserPassword = "reader1234";
+    private final String adminUserName = "admin";
+    private final String adminUserPassword = "admin1234";
+    private final String readerUserName = "reader";
+    private final String readerUserPassword = "reader1234";
 
 
-    final String findAllCompaniesResponse = "[{\"id\":1,\"name\":\"Pepsi\",\"departments\":[{\"id\":3,\"name\":\"Administration\",\"employees\":[{\"id\":3,\"name\":\"Donald\",\"surname\":\"Tyler\",\"address\":{\"id\":3,\"street\":\"Street Z\",\"houseNumber\":\"3\",\"zipCode\":\"12-343\"}}],\"offices\":[{\"id\":4,\"name\":\"OfficeEntity of A Los Angeles\",\"address\":{\"id\":7,\"street\":\"Street XXX\",\"houseNumber\":\"7\",\"zipCode\":\"12-347\"}}]},{\"id\":2,\"name\":\"Research & Development\",\"employees\":[{\"id\":2,\"name\":\"Robert\",\"surname\":\"James\",\"address\":{\"id\":2,\"street\":\"Street Y\",\"houseNumber\":\"2\",\"zipCode\":\"12-342\"}}],\"offices\":[{\"id\":3,\"name\":\"OfficeEntity of R&D Boston\",\"address\":{\"id\":6,\"street\":\"Street ZZ\",\"houseNumber\":\"6\",\"zipCode\":\"12-346\"}}]},{\"id\":1,\"name\":\"Sales & Marketing\",\"employees\":[{\"id\":1,\"name\":\"John\",\"surname\":\"William\",\"address\":{\"id\":1,\"street\":\"Street X\",\"houseNumber\":\"1\",\"zipCode\":\"12-341\"}}],\"offices\":[{\"id\":1,\"name\":\"OfficeEntity of S&M Boston\",\"address\":{\"id\":4,\"street\":\"Street XX\",\"houseNumber\":\"4\",\"zipCode\":\"12-344\"}},{\"id\":2,\"name\":\"OfficeEntity of S&M New York\",\"address\":{\"id\":5,\"street\":\"Street YY\",\"houseNumber\":\"5\",\"zipCode\":\"12-345\"}}]}],\"cars\":[{\"id\":1,\"registrationNumber\":\"XYZ10ABC\"},{\"id\":3,\"registrationNumber\":\"XYZ12ABC\"},{\"id\":2,\"registrationNumber\":\"XYZ11ABC\"}]},{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]},{\"id\":3,\"name\":\"Sprite\",\"departments\":[{\"id\":5,\"name\":\"Sales & Marketing\",\"employees\":[],\"offices\":[]}],\"cars\":[]},{\"id\":4,\"name\":\"Irn Bru\",\"departments\":[{\"id\":6,\"name\":\"Manufacturing\",\"employees\":[],\"offices\":[]}],\"cars\":[]}]";
+    private final String findAllCompaniesResponse = "[{\"id\":1,\"name\":\"Pepsi\",\"departments\":[{\"id\":3,\"name\":\"Administration\",\"employees\":[{\"id\":3,\"name\":\"Donald\",\"surname\":\"Tyler\",\"address\":{\"id\":3,\"street\":\"Street Z\",\"houseNumber\":\"3\",\"zipCode\":\"12-343\"}}],\"offices\":[{\"id\":4,\"name\":\"OfficeEntity of A Los Angeles\",\"address\":{\"id\":7,\"street\":\"Street XXX\",\"houseNumber\":\"7\",\"zipCode\":\"12-347\"}}]},{\"id\":2,\"name\":\"Research & Development\",\"employees\":[{\"id\":2,\"name\":\"Robert\",\"surname\":\"James\",\"address\":{\"id\":2,\"street\":\"Street Y\",\"houseNumber\":\"2\",\"zipCode\":\"12-342\"}}],\"offices\":[{\"id\":3,\"name\":\"OfficeEntity of R&D Boston\",\"address\":{\"id\":6,\"street\":\"Street ZZ\",\"houseNumber\":\"6\",\"zipCode\":\"12-346\"}}]},{\"id\":1,\"name\":\"Sales & Marketing\",\"employees\":[{\"id\":1,\"name\":\"John\",\"surname\":\"William\",\"address\":{\"id\":1,\"street\":\"Street X\",\"houseNumber\":\"1\",\"zipCode\":\"12-341\"}}],\"offices\":[{\"id\":1,\"name\":\"OfficeEntity of S&M Boston\",\"address\":{\"id\":4,\"street\":\"Street XX\",\"houseNumber\":\"4\",\"zipCode\":\"12-344\"}},{\"id\":2,\"name\":\"OfficeEntity of S&M New York\",\"address\":{\"id\":5,\"street\":\"Street YY\",\"houseNumber\":\"5\",\"zipCode\":\"12-345\"}}]}],\"cars\":[{\"id\":1,\"registrationNumber\":\"XYZ10ABC\"},{\"id\":3,\"registrationNumber\":\"XYZ12ABC\"},{\"id\":2,\"registrationNumber\":\"XYZ11ABC\"}]},{\"id\":2,\"name\":\"Coca Cola\",\"departments\":[{\"id\":4,\"name\":\"Human Resources\",\"employees\":[],\"offices\":[]}],\"cars\":[{\"id\":4,\"registrationNumber\":\"XYZ13ABC\"}]},{\"id\":3,\"name\":\"Sprite\",\"departments\":[{\"id\":5,\"name\":\"Sales & Marketing\",\"employees\":[],\"offices\":[]}],\"cars\":[]},{\"id\":4,\"name\":\"Irn Bru\",\"departments\":[{\"id\":6,\"name\":\"Manufacturing\",\"employees\":[],\"offices\":[]}],\"cars\":[]}]";
     @Autowired
     private MockMvc mockMvc;
 
@@ -172,7 +173,6 @@ public class CompanyControllerIntegrationTest {
     @Test
     public void testAccessRestWithReadWriteScope() throws Exception {
         // arrange
-        final String expectedResponse = findAllCompaniesResponse;
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
@@ -181,13 +181,12 @@ public class CompanyControllerIntegrationTest {
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
-        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(expectedResponse);
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(findAllCompaniesResponse);
     }
 
     @Test
     public void testAccessRestWithReadScope() throws Exception {
         // arrange
-        final String expectedResponse = findAllCompaniesResponse;
         final String token = getToken(readClientName, readClientPassword, adminUserName, adminUserPassword);
 
         // act
@@ -195,7 +194,7 @@ public class CompanyControllerIntegrationTest {
 
         // assert
         assertThat(mvcResult.getResponse().getContentType()).contains("application/json");
-        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(expectedResponse);
+        assertThat(mvcResult.getResponse().getContentAsString()).isEqualToIgnoringCase(findAllCompaniesResponse);
     }
 
     @Test
@@ -395,7 +394,7 @@ public class CompanyControllerIntegrationTest {
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
 
         // act
-        MvcResult mvcResult = this.executeRestCall(token, post("/secured/companies"), status().isCreated(), company);
+        this.executeRestCall(token, post("/secured/companies"), status().isCreated(), company);
 
         // assert
         entityManager = entityManagerFactory.createEntityManager();
@@ -412,17 +411,17 @@ public class CompanyControllerIntegrationTest {
     public void testCompanyFilterAccess_AdminHasAll() throws Exception {
         // arrange
         final String token = getToken(readWriteClientName, readWriteClientPassword, adminUserName, adminUserPassword);
-        final String cocalCola = "Coca Cola";
+        final String cocaCola = "Coca Cola";
         final String pepsi = "Pepsi";
         final String sprite = "Sprite";
 
         // act
-        MvcResult cocaColaResponse = executeRestCall(token, get("/secured/company"), status().isOk(), cocalCola);
+        MvcResult cocaColaResponse = executeRestCall(token, get("/secured/company"), status().isOk(), cocaCola);
         MvcResult pepsiResponse = executeRestCall(token, get("/secured/company"), status().isOk(), pepsi);
         MvcResult spriteResponse = executeRestCall(token, get("/secured/company"), status().isOk(), sprite);
 
         // assert
-        assertThat(cocaColaResponse.getResponse().getContentAsString()).contains(cocalCola);
+        assertThat(cocaColaResponse.getResponse().getContentAsString()).contains(cocaCola);
         assertThat(pepsiResponse.getResponse().getContentAsString()).contains(pepsi);
         assertThat(spriteResponse.getResponse().getContentAsString()).contains(sprite);
     }

@@ -8,7 +8,7 @@ import com.greenhills.oauth2security.model.business.OfficeEntity;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@SuppressWarnings("Duplicates")
+@SuppressWarnings({"Duplicates", "unchecked", "AccessStaticViaInstance"})
 public class DepartmentBuilder {
 
 
@@ -98,7 +98,7 @@ public class DepartmentBuilder {
         return Optional.of(departmentEntity);
     }
 
-    public static Optional<DepartmentEntity> entityFromLightweightDepartmen(LightweightDepartment department) {
+    public static Optional<DepartmentEntity> entityFromLightweightDepartment(LightweightDepartment department) {
         if (department == null) return Optional.empty();
 
         DepartmentEntity departmentEntity = new DepartmentEntity();

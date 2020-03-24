@@ -1,3 +1,5 @@
+-- noinspection SqlResolveForFile
+
 INSERT INTO COMPANY(ID, NAME) VALUES (1, 'Pepsi');
 INSERT INTO COMPANY(ID, NAME) VALUES (2, 'Coca Cola');
 INSERT INTO COMPANY(ID, NAME) VALUES (3, 'Sprite');

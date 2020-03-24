@@ -11,7 +11,10 @@ public interface DepartmentService {
 
     LightweightDepartment getLightweight(Long id);
 
+    @SuppressWarnings("unused")
     List<Department> getAll();
 
-    Optional<Long> create(LightweightDepartment company);
+    Optional<Long> create(LightweightDepartment department);
+
+   Department update(LightweightDepartment department);
 }
